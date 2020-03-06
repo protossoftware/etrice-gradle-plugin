@@ -1,0 +1,199 @@
+= eTrice Gradle Plugin
+:toc: left
+:toclevels: 2
+:icons: font
+:source-highlighter: highlightjs
+
+For an introduction to general concepts see the https://docs.gradle.org/current/userguide/userguide.html[Gradle User Guide].
+The user guide also explains how to build Java/C/C++ software with Gradle.
+This document is only about how to integrate the eTrice generators with Gradle.
+Keep in mind that the plugins require at least Gradle 6.
+
+== Getting Started
+
+In order to use one of the provided Gradle plugins and tasks the plugin must be listed in the plugins block of your build file.
+Further there must be a repository declared to resolve dependencies from, e.g. eTrice generator, modellib, runtime.
+
+.eTrice repository declaration
+[source, gradle]
+----
+repositories {
+    maven {
+        url "https://repo.eclipse.org/content/repositories/etrice/"
+    }
+}
+----
+
+TIP: For more detailed information about all provided classes also see the generated https://protossoftware.github.io/etrice-gradle-plugin/javadoc[javadoc].
+
+== Plugins
+
+=== eTrice Base Plugin
+
+This plugin sets up the build to generate code from model files.
+Use the provided `generator` configuration to declare the dependencies of the generators that you want to use and the `modelpath` configuration to declare model dependencies.
+Define model sources in the `modelSet` extension container.
+A model source contains the source directories of your model files and the settings for the generator to use.
+For every model source a <<Generate Task, generate task>> is created to generate code from the specified model files.
+Additionally the `eclipseModelpath` task is configured to create a suitable Eclipse modelpath file.
+Also the `adhoc` component is created for publishing a zip containing all model files of this project.
+
+.eTrice base plugin example
+[source, gradle, subs="attributes+"]
+----
+plugins {
+    id "de.protos.etrice-base" version "{version-plugin}"
+}
+
+dependencies {
+    // add the dependency of the generator
+    generator "org.eclipse.etrice:org.eclipse.etrice.generator.c:{version-etrice}"
+    
+    // add a project dependency of the model
+    modelpath project(":runtime:org.eclipse.etrice.modellib.c")
+}
+
+modelSet {
+    // Define a model source
+    room {
+        source.srcDir "model"
+        source.include "**/*.room", "**/*.etmap", "**/*.etphys"
+        module = "etrice-c"
+        genDir = layout.buildDirectory.dir("src-gen/room")
+        option "msc_instr"
+    }
+}
+----
+
+=== eTrice C Plugin
+
+This plugin applies the model base plugin and sets up the `room` model source configured with the eTrice C generator.
+By default all room files in the 'model' directory of your project are passed to the generator.
+The target directory for the generated code is 'build/src-gen/room'.
+
+.eTrice C Plugin example
+[source, gradle, subs="attributes+"]
+----
+plugins {
+    id "de.protos.etrice-c" version "{version-plugin}"
+}
+
+dependencies {
+    generator "org.eclipse.etrice:org.eclipse.etrice.generator.c:{version-etrice}"
+}
+----
+
+=== Model Library Plugin
+
+A plugin for downloading and extracting model zips produced by the <<Model Base Plugin, model base plugin>>.
+Use the `modelLibrary` configuration to declare the model projects to download.
+The `unzipModel` task is set up to extract the model zips into the target directory 'build/modellib'.
+
+.Model library plugin example
+[source, gradle, subs="attributes+"]
+----
+plugins {
+    id "de.protos.model-library" version "{version-plugin}"
+}
+
+dependencies {
+    modelLibrary "org.eclipse.etrice:org.eclipse.etrice.modellib.c:{version-etrice}"
+}
+----
+
+=== Source Publish Plugin
+
+This plugin configures the `adhoc` component to contain the source zip produced by the `zipSource` task.
+
+.Source publish plugin example
+[source, gradle, subs="attributes+"]
+----
+plugins {
+    id "maven-publish"
+    id "de.protos.source-publish" version "{version-plugin}"
+}
+
+zipSource.from "src"
+
+publishing {
+    publications {
+		runtime(MavenPublication) {
+			from components.adhoc
+		}
+	}
+}
+----
+
+=== Source Library Plugin
+
+This plugin downloads and extracts source zips produced by the <<Source Publish Plugin, source publish plugin>>.
+Declare the modules to download in the `sourceLibrary` configuration.
+The `unzipSource` task is configured to extract the source into 'build/sourcelib'.
+
+.Source library plugin example
+[source, gradle, subs="attributes+"]
+----
+plugins {
+    id "de.protos.source-library" version "{version-plugin}"
+}
+
+dependencies {
+    sourceLibrary "org.eclipse.etrice:org.eclipse.etrice.runtime.c:{version-etrice}"
+}
+----
+
+== Tasks
+
+=== Generate Task
+
+==== Generator module
+
+Use the `module` property to specify the generator variant by its symbolic name.
+
+NOTE: The symbolic name is specified by a file with the name of the generator in the resource location 'META-INF/generators' that contains the fully qualified name of the generator module class.
+
+.Known symbolic names of generators
+* `etrice-c`, `etrice-cpp`, `etrice-java`, `etrice-doc`
+* `cage`
+* `etex-c`, `etex-java`, `etex-doc`
+
+==== Generator input files
+
+The model files that are passed to the generator are configured using the inherited methods from https://docs.gradle.org/current/dsl/org.gradle.api.tasks.SourceTask.html[`SourceTask`].
+You can add files using the `source` method and specify include and exclude patterns.
+
+[source, gradle]
+----
+source "src/main/room", "src/main/etmap"
+exclude "**/diagrams/"
+include "**/*.room", "**/*.etmap"
+----
+
+==== Generator output directory
+The target directory for the generated source files can be set via the `genDir` property.
+
+==== Generator modelpath
+The `modelpath` property specifies the directories that are searched by the generator for referenced models.
+
+==== Generator options
+
+Generator options are stored as key value pairs in the `options` map property, except for the target directory and the modelpath.
+These are specified in the corresponding properties above.
+
+==== Generator classpath
+
+The generator classpath contains the dependencies of the generator itself and can be set with the `classpath` property.
+All generator classes are resolved and loaded at runtime.
+
+TIP: Try to use the same classpath for all your generate tasks. This allows reusing the loaded generator classes and therefore speeding up the build process significantly.
+
+=== Eclipse Modelpath Task
+
+This task type generates an eclipse modelpath file.
+Use the `srcDirs` and `projects` properties to influence the generated modelpath file.
+
+WARNING: Executing this task will overwrite existing eclipse modelpath files.
+
+=== Unzip task
+
+Syncs files from zip archives into a directory.

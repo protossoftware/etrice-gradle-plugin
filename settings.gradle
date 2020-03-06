@@ -1,0 +1,11 @@
+pluginManagement {
+	plugins {
+		id "com.gradle.plugin-publish" version "0.10.1"
+		id "pl.allegro.tech.build.axion-release" version "1.11.0"
+		id "org.asciidoctor.convert" version "1.5.12"
+	}
+}
+
+include "subprojects",
+		"subprojects:de.protos.etrice.gradle",
+		"doc"

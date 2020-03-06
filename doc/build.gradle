@@ -1,0 +1,17 @@
+plugins {
+	id "org.asciidoctor.convert"
+}
+
+asciidoctorj {
+	noDefaultRepositories = true
+}
+
+asciidoctor {
+	outputDir = file(siteDir)
+	separateOutputDirs = false
+
+	attributes "version-plugin" : project.version,
+		"version-etrice" : versions.etrice
+}
+
+buildSite.dependsOn asciidoctor

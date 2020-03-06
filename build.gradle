@@ -1,0 +1,40 @@
+plugins {
+	id "pl.allegro.tech.build.axion-release"
+}
+
+apply from: "gradle/versions.gradle"
+
+scmVersion {
+	versionCreator "versionWithBranch"
+	versionIncrementer "incrementPrerelease"
+	
+	localOnly = true
+	checks {
+		uncommittedChanges = false
+		aheadOfRemote = false
+		snapshotDependencies = false
+	}
+}
+
+ext {
+	siteDir = "$buildDir/site"
+}
+
+task cleanSite(type: Delete) {
+	delete siteDir
+}
+
+allprojects {
+	group "de.protos.etrice"
+	version scmVersion.version
+	
+	apply plugin: "eclipse"
+
+	repositories {
+		jcenter()
+	}
+	
+	task buildSite {
+		mustRunAfter cleanSite
+	}
+}
