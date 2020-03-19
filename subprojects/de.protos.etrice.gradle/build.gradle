@@ -24,6 +24,10 @@ gradlePlugin {
 			id = "de.protos.source-publish"
 			implementationClass = "de.protos.etrice.gradle.SourcePublishPlugin"
 		}
+		"etunit-convert" {
+			id = "de.protos.etunit-convert"
+			implementationClass = "de.protos.etrice.gradle.EtUnitConvertPlugin"
+		}
 	}
 	
 	pluginBundle {
@@ -33,7 +37,7 @@ gradlePlugin {
 		tags = ["etrice"]
 		
 		plugins {
-			"model-base" {
+			"etrice-base" {
 				displayName = "eTrice Base Plugin"
 			}
 			"etrice-c" {
@@ -50,6 +54,9 @@ gradlePlugin {
 			}
 			"source-publish" {
 				displayName = "eTrice Source Publish Plugin"
+			}
+			"etunit-convert" {
+				displayName = "etUnit Convert Plugin"
 			}
 		}
 	}

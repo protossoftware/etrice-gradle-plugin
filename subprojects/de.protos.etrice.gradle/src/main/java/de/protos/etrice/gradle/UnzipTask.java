@@ -27,7 +27,7 @@ public class UnzipTask extends SourceTask {
 	}
 	
 	@TaskAction
-	public void sync() {
+	protected void sync() {
 		getProject().sync(copySpec -> {
 			getSource().forEach(file -> copySpec.from(getProject().zipTree(file)));
 			copySpec.into(destination);

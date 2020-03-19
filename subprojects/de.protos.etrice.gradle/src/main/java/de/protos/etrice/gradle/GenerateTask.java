@@ -60,7 +60,7 @@ public class GenerateTask extends SourceTask {
 	}
 	
 	/**
-	 * @return All files of the generator classpath
+	 * @return all files of the generator classpath
 	 */
 	@InputFiles
 	public ConfigurableFileCollection getClasspath() {
@@ -104,12 +104,8 @@ public class GenerateTask extends SourceTask {
 	 */
 	@TaskAction
 	protected void generate() {
-		generate(getGenerator());
-	}
-	
-	protected void generate(Generator generator) {
 		String[] args = collectArguments();
-		generator.run(args);
+		getGenerator().run(args);
 	}
 	
 	/**

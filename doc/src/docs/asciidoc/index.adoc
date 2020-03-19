@@ -18,13 +18,14 @@ Further there must be a repository declared to resolve dependencies from, e.g. e
 [source, gradle]
 ----
 repositories {
+    jcenter()
     maven {
         url "https://repo.eclipse.org/content/repositories/etrice/"
     }
 }
 ----
 
-TIP: For more detailed information about all provided classes also see the generated https://protossoftware.github.io/etrice-gradle-plugin/javadoc[javadoc].
+TIP: For more detailed information about all provided classes also see the generated link:javadoc/index.html[javadoc].
 
 == Plugins
 
@@ -142,6 +143,29 @@ dependencies {
 }
 ----
 
+=== EtUnit Convert Plugin
+
+This plugin allows to define <<EtUnit Convert Tasks, etunit convert tasks>> in the `etunitConvert` extension.
+The `etunitConverter` configuration can be used to specify the classpath of the etunit converter.
+
+[source, gradle, subs="attributes+"]
+----
+plugins {
+    id "de.protos.etunit-convert" version "{version-plugin}"
+}
+
+dependencies {
+    etunitConverter "org.eclipse.etrice:org.eclipse.etrice.etunit.converter:{version-etrice}"
+}
+
+etunitConvert {
+    convertTestResults {
+        source "log"
+        options.addAll "-suite", "my.suite.name"
+    }
+}
+----
+
 == Tasks
 
 === Generate Task
@@ -194,6 +218,10 @@ Use the `srcDirs` and `projects` properties to influence the generated modelpath
 
 WARNING: Executing this task will overwrite existing eclipse modelpath files.
 
-=== Unzip task
+=== Unzip Task
 
 Syncs files from zip archives into a directory.
+
+=== EtUnit Convert Task
+
+Converts etunit files to xml test reports.

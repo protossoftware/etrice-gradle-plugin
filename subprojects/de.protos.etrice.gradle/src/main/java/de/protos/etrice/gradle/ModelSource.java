@@ -31,6 +31,9 @@ public class ModelSource implements Named {
 		return name;
 	}
 	
+	/**
+	 * @return the classpath of the generator
+	 */
 	public ConfigurableFileCollection getClasspath() {
 		return generateTask.get().getClasspath();
 	}
