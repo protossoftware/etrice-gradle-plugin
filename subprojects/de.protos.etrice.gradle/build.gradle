@@ -31,7 +31,7 @@ gradlePlugin {
 	}
 	
 	pluginBundle {
-		website = "https://github.com/protossoftware/etrice-gradle-plugin"
+		website = "https://protossoftware.github.io/etrice-gradle-plugin/"
 		vcsUrl = "https://github.com/protossoftware/etrice-gradle-plugin"
 		description = "Gradle plugins for eTrice integration"
 		tags = ["etrice"]
