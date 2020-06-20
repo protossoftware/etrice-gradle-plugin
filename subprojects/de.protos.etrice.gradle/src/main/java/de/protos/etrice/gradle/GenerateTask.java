@@ -21,6 +21,7 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.internal.classpath.CachedClasspathTransformer;
 import org.gradle.internal.classpath.ClassPath;
 import org.gradle.internal.classpath.DefaultClassPath;
+import org.gradle.internal.classpath.CachedClasspathTransformer.StandardTransform;
 
 /**
  * Base task class for generator execution. 
@@ -48,10 +49,9 @@ public class GenerateTask extends SourceTask {
 	 * @param classpathTransformer Gradle classpath transformer
 	 */
 	@Inject
-	public GenerateTask(CachedClasspathTransformer classpathTransformer) {
+	public GenerateTask(CachedClasspathTransformer classpathTransformer, ObjectFactory objects) {
 		this.classpathTransformer = classpathTransformer;
 		
-		ObjectFactory objects = getProject().getObjects();
 		this.classpath = objects.fileCollection();
 		this.module = objects.property(String.class);
 		this.genDir = objects.directoryProperty();
@@ -167,7 +167,7 @@ public class GenerateTask extends SourceTask {
 		if(generator == null) {
 			// cache the classpath using the internal Gradle api to avoid file locks on original classpath files
 			ClassPath cp = DefaultClassPath.of(getClasspath());
-			ClassPath cachedCp =  classpathTransformer.transform(cp);
+			ClassPath cachedCp =  classpathTransformer.transform(cp, StandardTransform.None);
 			generator = GlobalGeneratorProvider.getGenerator(cachedCp.getAsFiles(), module.get());
 		}
 		return generator;

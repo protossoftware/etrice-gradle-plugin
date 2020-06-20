@@ -7,4 +7,4 @@
 ### How do I get set up? ###
 
 * Import project with Gradle Import Wizard to Eclipse
-* 'gradle build' to build projects
+* 'gradlew build' to build projects
