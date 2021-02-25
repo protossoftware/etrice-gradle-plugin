@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.inject.Inject;
+
 import org.gradle.api.DefaultTask;
 import org.gradle.api.UncheckedIOException;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -31,8 +33,8 @@ public class EclipseModelpathTask extends DefaultTask {
 	private final ListProperty<String> projects;
 	private final DirectoryProperty eclipseProjectDirectory;
 	
-	public EclipseModelpathTask() {
-		ObjectFactory objects = getProject().getObjects();
+	@Inject
+	public EclipseModelpathTask(ObjectFactory objects) {
 		srcDirs = objects.fileCollection();
 		projects = objects.listProperty(String.class);
 		eclipseProjectDirectory = objects.directoryProperty();

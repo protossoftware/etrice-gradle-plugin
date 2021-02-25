@@ -7,7 +7,7 @@
 This document is about how to integrate the eTrice generators with Gradle.
 For an introduction to general concepts see the https://docs.gradle.org/current/userguide/userguide.html[Gradle User Guide].
 The user guide also explains how to build Java/C/C++ software with Gradle.
-Keep in mind that the plugins require at least Gradle 6.
+Keep in mind that the plugins require at least Gradle 6.5.
 
 == Getting Started
 

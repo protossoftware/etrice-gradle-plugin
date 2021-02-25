@@ -30,10 +30,9 @@ public class EtUnitConvertTask extends SourceTask {
 	private ListProperty<String> options;
 	
 	@Inject
-	public EtUnitConvertTask(ExecOperations execOperations) {
+	public EtUnitConvertTask(ExecOperations execOperations, ObjectFactory objects) {
 		this.execOperations = execOperations;
 		
-		ObjectFactory objects = getProject().getObjects();
 		classpath = objects.fileCollection();
 		options = objects.listProperty(String.class);
 	}
