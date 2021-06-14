@@ -36,6 +36,7 @@ task javadoc(type: Javadoc, group: "Documentation") {
 	source subprojects.collect { it.sourceSets.main.allJava }
 	classpath = files(subprojects.collect { it.sourceSets.main.compileClasspath })
 	title = "eTrice Gradle Plugin Javadoc"
+	options.source = '8'
 	options.links "https://docs.oracle.com/javase/8/docs/api/",
 		"https://docs.gradle.org/$gradle.gradleVersion/javadoc/"
 	destinationDir = file("$siteDir/javadoc")
