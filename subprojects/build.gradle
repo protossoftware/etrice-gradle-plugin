@@ -12,6 +12,14 @@ subprojects {
 		withJavadocJar()
 		withSourcesJar()
 	}
+
+	tasks.withType(JavaCompile) {
+		if(JavaVersion.current() > JavaVersion.VERSION_1_8) {
+			// Compile for minimum Java version supported by Gradle
+			// https://docs.gradle.org/current/userguide/compatibility.html
+			options.release = 8
+		}
+	}
 }
 
 task javadoc(type: Javadoc, group: "Documentation") {

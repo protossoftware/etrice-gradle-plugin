@@ -47,6 +47,7 @@ public class GenerateTask extends SourceTask {
 	 * Creates a new task for a generator.
 	 * 
 	 * @param classpathTransformer Gradle classpath transformer
+	 * @param objects Gradle object factory
 	 */
 	@Inject
 	public GenerateTask(CachedClasspathTransformer classpathTransformer, ObjectFactory objects) {
