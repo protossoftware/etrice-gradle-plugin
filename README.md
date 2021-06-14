@@ -1,10 +1,8 @@
-# etrice-gradle-plugin #
+# eTrice Gradle Plugins
 
-### What is this repository for? ###
+Build [eTrice](https://www.eclipse.org/etrice/) projects with [Gradle](https://gradle.org/).
 
-* Gradle plugins for eTrice
+## Getting Started
 
-### How do I get set up? ###
-
-* Import project with Gradle Import Wizard to Eclipse
-* 'gradlew build' to build projects
+* [Documentation](https://protossoftware.github.io/etrice-gradle-plugin/)
+* [Javadoc](https://protossoftware.github.io/etrice-gradle-plugin/javadoc/)

@@ -24,7 +24,7 @@ public class EtUnitConvertPlugin implements Plugin<Project> {
 	public static final String ETUNIT_CONVERTER_CONFIGURATION_NAME = "etunitConverter";
 	public static final String ETUNIT_CONVERTER_CLASSPATH_CONFIGURATION_NAME = "etunitConvertClasspath";
 	
-	private static final String ETUNIT_CONVERTER_DEFAULT_DEPENDENCY = "org.eclipse.etrice:org.eclipse.etrice.etunit.converter:3.0.2";
+	private static final String ETUNIT_CONVERTER_DEFAULT_DEPENDENCY = "org.eclipse.etrice:org.eclipse.etrice.etunit.converter:3.1.4";
 	
 	@Override
 	public void apply(Project project) {

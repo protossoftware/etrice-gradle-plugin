@@ -31,7 +31,9 @@ allprojects {
 	apply plugin: "eclipse"
 
 	repositories {
-		jcenter()
+		maven {
+			url "https://repo.eclipse.org/content/repositories/maven_central/"
+		}
 	}
 	
 	task buildSite {

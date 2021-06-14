@@ -1,17 +1,12 @@
 plugins {
-	id "org.asciidoctor.convert"
-}
-
-asciidoctorj {
-	noDefaultRepositories = true
+	id "org.asciidoctor.jvm.convert"
 }
 
 asciidoctor {
 	outputDir = file(siteDir)
-	separateOutputDirs = false
-
 	attributes "version-plugin" : project.version,
-		"version-etrice" : versions.etrice
+		"version-etrice" : '3.1.4',
+		"version-gradle" : gradle.gradleVersion
 }
 
 buildSite.dependsOn asciidoctor

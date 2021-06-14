@@ -7,7 +7,7 @@
 This document is about how to integrate the eTrice generators with Gradle.
 For an introduction to general concepts see the https://docs.gradle.org/current/userguide/userguide.html[Gradle User Guide].
 The user guide also explains how to build Java/C/C++ software with Gradle.
-Keep in mind that the plugins require at least Gradle 6.5.
+Keep in mind that the plugins require at least Gradle {version-gradle}.
 
 == Getting Started
 
@@ -18,7 +18,9 @@ Further there must be a repository declared to resolve dependencies from, e.g. e
 [source, gradle]
 ----
 repositories {
-    jcenter()
+    maven {
+        url "https://repo.eclipse.org/content/repositories/maven_central/"
+    }
     maven {
         url "https://repo.eclipse.org/content/repositories/etrice/"
     }
@@ -86,7 +88,7 @@ dependencies {
 
 === Model Library Plugin
 
-A plugin for downloading and extracting model zips produced by the <<Model Base Plugin, model base plugin>>.
+A plugin for downloading and extracting model zips produced by the <<eTrice Base Plugin, eTrice base plugin>>.
 Use the `modelLibrary` configuration to declare the model projects to download.
 The `unzipModel` task is set up to extract the model zips into the target directory 'build/modellib'.
 
@@ -145,7 +147,7 @@ dependencies {
 
 === EtUnit Convert Plugin
 
-This plugin allows to define <<EtUnit Convert Tasks, etunit convert tasks>> in the `etunitConvert` extension.
+This plugin allows to define <<EtUnit Convert Task, etunit convert tasks>> in the `etunitConvert` extension.
 The `etunitConverter` configuration can be used to specify the classpath of the etunit converter.
 
 [source, gradle, subs="attributes+"]
