@@ -29,6 +29,7 @@ import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.BasePlugin;
+import org.gradle.api.plugins.JvmEcosystemPlugin;
 import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
@@ -66,6 +67,7 @@ public class ETriceBasePlugin implements Plugin<Project> {
 		final ObjectFactory objects = project.getObjects();
 		
 		plugins.apply(BasePlugin.class);
+		plugins.apply(JvmEcosystemPlugin.class);
 		plugins.apply(AdhocComponentPlugin.class);
 		
 		dependencies.getAttributesSchema().attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, strategy -> {

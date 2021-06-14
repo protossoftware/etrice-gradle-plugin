@@ -133,7 +133,7 @@ RoomModel lib {
 def appRoomFile = """\
 RoomModel app {
 	import etrice.api.types.boolean
-	ActorClass ATest {
+	ActorClass AApp {
 		Structure {
 			Attribute b : boolean
 			ActorRef aref : lib.ALib
@@ -146,12 +146,12 @@ GradleProjectBuilder.build("etriceMultiProjectTest") {
 	write("lib/build.gradle", libBuildFile)
 	write("lib/model/lib.room", libRoomFile)
 	write("app/build.gradle", appBuildFile)
-	write("app/model/test.room", appRoomFile)
+	write("app/model/app.room", appRoomFile)
 	gradle("build") {
 		assert task(":lib:generateRoom")?.outcome == TaskOutcome.SUCCESS
 		assert task(":app:generateRoom")?.outcome == TaskOutcome.SUCCESS
 		assert exists("lib/build/src-gen/room/lib/ALib.c")
-		assert exists("app/build/src-gen/room/app/ATest.c")
+		assert exists("app/build/src-gen/room/app/AApp.c")
 	}
 }}
 

@@ -12,6 +12,8 @@ import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionContainer;
+import org.gradle.api.plugins.JvmEcosystemPlugin;
+import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.tasks.TaskContainer;
 
 /**
@@ -28,11 +30,14 @@ public class EtUnitConvertPlugin implements Plugin<Project> {
 	
 	@Override
 	public void apply(Project project) {
+		PluginContainer plugins = project.getPlugins();
 		ObjectFactory objects = project.getObjects();
 		ConfigurationContainer configurations = project.getConfigurations();
 		DependencyHandler dependencies = project.getDependencies();
 		TaskContainer tasks = project.getTasks();
 		ExtensionContainer extensions = project.getExtensions();
+		
+		plugins.apply(JvmEcosystemPlugin.class);
 		
 		NamedDomainObjectProvider<Configuration> etunit = configurations.register(ETUNIT_CONVERTER_CONFIGURATION_NAME, c -> {
 			c.setCanBeConsumed(false);
