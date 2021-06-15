@@ -2,11 +2,29 @@ plugins {
 	id "org.asciidoctor.jvm.convert"
 }
 
+configurations {
+	javadoc
+}
+
+dependencies {
+	javadoc project(path: ':subprojects:de.protos.etrice.gradle', configuration: 'javadocElements')
+}
+
 asciidoctor {
-	outputDir = file(siteDir)
+	outputDir = layout.buildDirectory.dir("site")
 	attributes "version-plugin" : project.version,
 		"version-etrice" : '3.1.4',
 		"version-gradle" : gradle.gradleVersion
 }
 
-buildSite.dependsOn asciidoctor
+task unzipJavadoc {
+	dependsOn(configurations.javadoc)
+	doLast {
+		project.sync {
+			from(zipTree(configurations.javadoc.singleFile))
+			into layout.buildDirectory.dir("site/javadoc")
+		}
+	}
+}
+
+task buildSite(dependsOn: [asciidoctor, unzipJavadoc])

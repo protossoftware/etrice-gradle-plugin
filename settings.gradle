@@ -1,7 +1,7 @@
 pluginManagement {
 	plugins {
-		id "com.gradle.plugin-publish" version "0.11.0"
-		id "pl.allegro.tech.build.axion-release" version "1.11.0"
+		id "com.gradle.plugin-publish" version "0.15.0"
+		id "pl.allegro.tech.build.axion-release" version "1.13.2"
 		id "org.asciidoctor.jvm.convert" version "3.3.2"
 	}
 }

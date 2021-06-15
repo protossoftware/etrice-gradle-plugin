@@ -5,9 +5,6 @@ plugins {
 apply from: "gradle/versions.gradle"
 
 scmVersion {
-	versionCreator "versionWithBranch"
-	versionIncrementer "incrementPrerelease"
-	
 	localOnly = true
 	checks {
 		uncommittedChanges = false
@@ -16,27 +13,13 @@ scmVersion {
 	}
 }
 
-ext {
-	siteDir = "$buildDir/site"
-}
-
-task cleanSite(type: Delete) {
-	delete siteDir
-}
-
 allprojects {
 	group "de.protos.etrice"
 	version scmVersion.version
 	
-	apply plugin: "eclipse"
-
 	repositories {
 		maven {
 			url "https://repo.eclipse.org/content/repositories/maven_central/"
 		}
-	}
-	
-	task buildSite {
-		mustRunAfter cleanSite
 	}
 }
