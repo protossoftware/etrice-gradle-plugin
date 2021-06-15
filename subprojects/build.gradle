@@ -4,6 +4,7 @@ plugins {
 
 subprojects {
 	apply plugin: "java-library"
+	apply plugin: "groovy"
 	apply plugin: "maven-publish"
 	apply plugin: "java-gradle-plugin"
 	apply plugin: "com.gradle.plugin-publish"
@@ -11,6 +12,14 @@ subprojects {
 	java {
 		withJavadocJar()
 		withSourcesJar()
+	}
+
+	dependencies {
+		testImplementation "org.junit.jupiter:junit-jupiter:${versions.junit}"
+	}
+
+	test {
+		useJUnitPlatform()
 	}
 
 	tasks.withType(JavaCompile) {
