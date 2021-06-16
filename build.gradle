@@ -21,5 +21,8 @@ allprojects {
 		maven {
 			url "https://repo.eclipse.org/content/repositories/maven_central/"
 		}
+		maven {
+			url "https://repo.eclipse.org/content/repositories/etrice/"
+		}
 	}
 }
