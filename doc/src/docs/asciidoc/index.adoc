@@ -211,7 +211,8 @@ These are specified in the corresponding properties above.
 The generator classpath contains the dependencies of the generator itself and can be set with the `classpath` property.
 All generator classes are resolved and loaded at runtime.
 
-TIP: Try to use the same classpath for all your generate tasks. This allows reusing the loaded generator classes and therefore speeding up the build process significantly.
+TIP: Try to use the same classpath for all your generate tasks.
+This allows reusing the worker processes and therefore speeding up the build process significantly while reducing its memory footprint.
 
 === Eclipse Modelpath Task
 

@@ -1,3 +1,8 @@
+dependencies {
+	// Compile only dependency on eTrice for the Gradle worker implementation
+	compileOnly "org.eclipse.etrice:org.eclipse.etrice.generator.base:3.0.0"
+}
+
 gradlePlugin {
 	plugins {
 		"etrice-base" {
