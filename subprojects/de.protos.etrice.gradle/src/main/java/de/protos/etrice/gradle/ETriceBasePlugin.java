@@ -139,7 +139,7 @@ public class ETriceBasePlugin implements Plugin<Project> {
 			t.setGroup(LifecycleBasePlugin.BUILD_GROUP);
 			t.dependsOn(project.provider(() -> modelSet.stream().map(ms -> ms.getGenerateTask()).collect(Collectors.toList())));
 		});
-		tasks.named(LifecycleBasePlugin.ASSEMBLE_TASK_NAME).configure(task -> task.dependsOn(generateAll));
+		tasks.named(LifecycleBasePlugin.BUILD_TASK_NAME).configure(task -> task.dependsOn(generateAll));
 		
 		configurations.register(MODELPATH_DIR_CONFIGURATION_NAME, c -> {
 			c.setCanBeConsumed(true);
