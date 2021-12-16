@@ -9,7 +9,6 @@ import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.Dependency;
@@ -34,7 +33,6 @@ import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.Zip;
-import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
 /**
  * Sets up basic configurations and tasks to generate code from models.
@@ -135,11 +133,10 @@ public class ETriceBasePlugin implements Plugin<Project> {
 			t.getProjects().addAll(project.provider(() -> getEclipseModelpathProjects(modelpath.get())));
 			t.getEclipseProjectDirectory().set(layout.getProjectDirectory());
 		});
-		TaskProvider<Task> generateAll = tasks.register(GENERATE_TASK_NAME, t -> {
-			t.setGroup(LifecycleBasePlugin.BUILD_GROUP);
+		tasks.register(GENERATE_TASK_NAME, t -> {
+			t.setDescription("Executes the generate task for each model source set");
 			t.dependsOn(project.provider(() -> modelSet.stream().map(ms -> ms.getGenerateTask()).collect(Collectors.toList())));
 		});
-		tasks.named(LifecycleBasePlugin.BUILD_TASK_NAME).configure(task -> task.dependsOn(generateAll));
 		
 		configurations.register(MODELPATH_DIR_CONFIGURATION_NAME, c -> {
 			c.setCanBeConsumed(true);
