@@ -27,7 +27,7 @@ modelSet {
 }"""
 GradleProjectBuilder.build("etriceEmptyProjectTest") {
 	write("build.gradle", buildFile)
-	gradle("build") {
+	gradle("generate") {
 		assert task(":generateTest")?.outcome == TaskOutcome.NO_SOURCE
 	}
 }}
