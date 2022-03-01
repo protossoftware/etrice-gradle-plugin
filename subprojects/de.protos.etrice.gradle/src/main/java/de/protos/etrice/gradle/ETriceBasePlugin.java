@@ -1,5 +1,7 @@
 package de.protos.etrice.gradle;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -22,6 +24,7 @@ import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.MultipleCandidatesDetails;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.component.AdhocComponentWithVariants;
+import org.gradle.api.file.Directory;
 import org.gradle.api.file.DuplicatesStrategy;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.ProjectLayout;
@@ -129,9 +132,10 @@ public class ETriceBasePlugin implements Plugin<Project> {
 			t.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
 		});
 		tasks.register(ECLIPSE_MODELPATH_TASK_NAME, EclipseModelpathTask.class, t -> {
-			t.getSrcDirs().from(allSrcDirs);
-			t.getProjects().addAll(project.provider(() -> getEclipseModelpathProjects(modelpath.get())));
-			t.getEclipseProjectDirectory().set(layout.getProjectDirectory());
+			// Create a new provider from the plain values to erase any unwanted task dependencies.
+			t.getSrcDirs().value(project.provider(() -> getEclipseModelpathSrcDirs(layout.getProjectDirectory(), allSrcDirs)));
+			t.getProjects().value(project.provider(() -> getEclipseModelpathProjects(modelpath.get())));
+			t.getModelpathFile().set(layout.getProjectDirectory().file("modelpath"));
 		});
 		tasks.register(GENERATE_TASK_NAME, t -> {
 			t.setDescription("Executes the generate task for each model source set");
@@ -155,6 +159,22 @@ public class ETriceBasePlugin implements Plugin<Project> {
 		
 		project.getComponents().named(AdhocComponentPlugin.ADHOC_COMPONENT_NAME, AdhocComponentWithVariants.class,
 			c -> c.addVariantsFromConfiguration(modelpathZip.get(), unused -> {}));
+	}
+	
+	/**
+	 * Resolves the source directories relative to the project directory.
+	 * 
+	 * @param projectDir the project directory
+	 * @param allSrcDirs the source directories
+	 * @return a list of source directories relative to the project directory
+	 */
+	private Iterable<String> getEclipseModelpathSrcDirs(Directory projectDir, FileCollection allSrcDirs) {
+		Path projectPath = projectDir.getAsFile().toPath();
+		return allSrcDirs.getFiles().stream()
+			.map(File::toPath)
+			.filter(path -> path.startsWith(projectPath))
+			.map(path -> projectPath.relativize(path).toString())
+			.collect(Collectors.toList());
 	}
 	
 	/**
