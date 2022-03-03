@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import javax.inject.Inject;
 
@@ -173,8 +174,18 @@ public class ETriceBasePlugin implements Plugin<Project> {
 		return allSrcDirs.getFiles().stream()
 			.map(File::toPath)
 			.filter(path -> path.startsWith(projectPath))
-			.map(path -> projectPath.relativize(path).toString())
+			.map(path -> toPathStringWithForwardSlashes(projectPath.relativize(path)))
 			.collect(Collectors.toList());
+	}
+	
+	/**
+	 * Converts a path to a string that separates path segments by forward slashes.
+	 * 
+	 * @param path the path to convert
+	 * @return the path string with forward slashes
+	 */
+	private static String toPathStringWithForwardSlashes(Path path) {
+		return StreamSupport.stream(path.spliterator(), false).map(Path::toString).collect(Collectors.joining("/"));
 	}
 	
 	/**
