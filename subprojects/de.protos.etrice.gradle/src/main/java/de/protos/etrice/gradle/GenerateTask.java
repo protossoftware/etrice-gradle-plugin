@@ -121,6 +121,13 @@ public class GenerateTask extends SourceTask {
 		// Submit the request to a worker process that runs the generator.
 		WorkQueue queue = executor.processIsolation(spec -> {
 			spec.getClasspath().from(cachedCp.getAsFiles());
+			spec.forkOptions(forkOptions -> {
+				// Environment variables are not forwarded to worker processes by default,
+				// see https://github.com/gradle/gradle/issues/8030.
+				// This breaks for example Files.createTempFile and Files.createTempDirectory on Windows.
+				// Therefore, we explicitly forward all environment variables to the worker process here.
+				forkOptions.environment(System.getenv());
+			});
 		});
 		queue.submit(GeneratorWorker.class, params -> {
 			params.getModule().set(module);
