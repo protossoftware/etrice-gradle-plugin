@@ -228,3 +228,66 @@ Syncs files from zip archives into a directory.
 === EtUnit Convert Task
 
 Converts etunit files to xml test reports.
+
+== Complete Example
+
+The Gradle buildscript below downloads the eTrice C generator, modellib and runtime and compiles the generated source code for Windows.
+
+.Complete eTrice C Example
+[source, gradle, subs="attributes+"]
+----
+plugins {
+    id "c"
+    id "de.protos.etrice-c" version "{version-plugin}"
+    id "de.protos.model-library" version "{version-plugin}"
+    id "de.protos.source-library" version "{version-plugin}"
+}
+
+repositories {
+    maven {
+        url "https://repo.eclipse.org/content/repositories/maven_central/"
+    }
+    maven {
+        url "https://repo.eclipse.org/content/repositories/etrice/"
+    }
+}
+
+dependencies {
+    generator "org.eclipse.etrice:org.eclipse.etrice.generator.c:{version-etrice}"
+    modelLibrary "org.eclipse.etrice:org.eclipse.etrice.modellib.c:{version-etrice}"
+    sourceLibrary "org.eclipse.etrice:org.eclipse.etrice.runtime.c:{version-etrice}"
+    sourceLibrary "org.eclipse.etrice:org.eclipse.etrice.runtime.c.mt-win-mingw:{version-etrice}"
+}
+
+modelSet {
+    room {
+        source.srcDirs "model", unzipModel.destination
+        source.include "**/*.room", "**/*.etmap", "**/*.etphys"
+        module = "etrice-c"
+        option "msc_instr"
+    }
+}
+
+model {
+    components {
+        main(NativeExecutableSpec) {
+            sources {
+                c {
+                    source {
+                        srcDirs = [generateRoom.genDir, unzipSource.destination]
+                        include "**/*.c"
+                    }
+                    exportedHeaders {
+                        srcDirs = [generateRoom.genDir, unzipSource.destination]
+                    }
+                    builtBy generateRoom, unzipSource
+                }
+            }
+            binaries.all {
+                cCompiler.args "-g3", "-O0"
+                linker.args "-lws2_32"
+            }
+        }
+    }
+}
+----
