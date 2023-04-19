@@ -72,7 +72,7 @@ public class EtUnitConvertTask extends SourceTask {
 			spec.classpath(classpath);
 			spec.args(options.get());
 			spec.args(getSource());
-			spec.setMain(ETUNIT_CONVERTER_MAIN);
+			spec.getMainClass().set(ETUNIT_CONVERTER_MAIN);
 			spec.setIgnoreExitValue(false);
 		});
 	}
