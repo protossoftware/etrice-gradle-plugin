@@ -43,6 +43,7 @@ public class SourcePublishPlugin implements Plugin<Project> {
 		NamedDomainObjectProvider<Configuration> sourceZip = configurations.register(SOURCE_ZIP_CONFIGURATION_NAME, c -> {
 			c.setCanBeConsumed(true);
 			c.setCanBeResolved(false);
+			c.setVisible(false);
 			c.getAttributes().attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.class, SourceLibraryPlugin.LIBRARY_ELEMENTS_SOURCE_ZIP));
 			c.getOutgoing().artifact(zipSource);
 		});

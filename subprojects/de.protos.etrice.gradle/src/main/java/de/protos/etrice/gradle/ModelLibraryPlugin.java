@@ -34,12 +34,14 @@ public class ModelLibraryPlugin implements Plugin<Project> {
 		NamedDomainObjectProvider<Configuration> modelLibrary = configurations.register(MODEL_LIBRARY_CONFIGURATION_NAME, c -> {
 			c.setCanBeConsumed(false);
 			c.setCanBeResolved(false);
+			c.setVisible(false);
 			c.setTransitive(false);
 		});
 		
 		NamedDomainObjectProvider<Configuration> unzipModelSource = configurations.register(UNZIP_MODEL_SOURCE_CONFIGURATION_NAME, c -> {
 			c.setCanBeConsumed(false);
 			c.setCanBeResolved(true);
+			c.setVisible(false);
 			c.setTransitive(false);
 			c.getAttributes().attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.class, ETriceBasePlugin.LIBRARY_ELEMENTS_MODEL_ZIP));
 			c.extendsFrom(modelLibrary.get());

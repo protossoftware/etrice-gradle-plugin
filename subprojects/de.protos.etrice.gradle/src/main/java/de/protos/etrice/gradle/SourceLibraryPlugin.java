@@ -32,12 +32,14 @@ public class SourceLibraryPlugin implements Plugin<Project> {
 		NamedDomainObjectProvider<Configuration> sourceLibrary = configurations.register(SOURCE_LIBRARY_CONFIGURATION_NAME, c -> {
 			c.setCanBeConsumed(false);
 			c.setCanBeResolved(false);
+			c.setVisible(false);
 			c.setTransitive(false);
 		});
 		
 		NamedDomainObjectProvider<Configuration> unzipSource = configurations.register(UNZIP_SOURCE_CONFIGURATION_NAME, c -> {
 			c.setCanBeConsumed(false);
 			c.setCanBeResolved(true);
+			c.setVisible(false);
 			c.setTransitive(false);
 			c.getAttributes().attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.class, LIBRARY_ELEMENTS_SOURCE_ZIP));
 			c.extendsFrom(sourceLibrary.get());
