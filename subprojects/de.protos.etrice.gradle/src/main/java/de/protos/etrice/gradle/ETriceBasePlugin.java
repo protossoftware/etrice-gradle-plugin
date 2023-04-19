@@ -86,10 +86,12 @@ public class ETriceBasePlugin implements Plugin<Project> {
 		NamedDomainObjectProvider<Configuration> generator = configurations.register(GENERATOR_CONFIGURATION_NAME, c -> {
 			c.setCanBeConsumed(false);
 			c.setCanBeResolved(false);
+			c.setVisible(false);
 		});
 		NamedDomainObjectProvider<Configuration> generatorClasspath = configurations.register(GENERATE_CLASSPATH_CONFIGURATION_NAME, c -> {
 			c.setCanBeConsumed(false);
 			c.setCanBeResolved(true);
+			c.setVisible(false);
 			c.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.class, Usage.JAVA_RUNTIME));
 			c.getAttributes().attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.class, Category.LIBRARY));
 			c.getAttributes().attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.class, LibraryElements.JAR));
@@ -98,10 +100,12 @@ public class ETriceBasePlugin implements Plugin<Project> {
 		NamedDomainObjectProvider<Configuration> modelpath = configurations.register(MODELPATH_CONFIGURATION_NAME, c -> {
 			c.setCanBeConsumed(false);
 			c.setCanBeResolved(false);
+			c.setVisible(false);
 		});
 		NamedDomainObjectProvider<Configuration> generateModelpath = configurations.register(GENERATE_MODELPATH_CONFIGURATION_NAME, c -> {
 			c.setCanBeConsumed(false);
 			c.setCanBeResolved(true);
+			c.setVisible(false);
 			c.getAttributes().attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.class, LIBRARY_ELEMENTS_MODEL_DIR));
 			c.extendsFrom(modelpath.get());
 		});
@@ -146,6 +150,7 @@ public class ETriceBasePlugin implements Plugin<Project> {
 		configurations.register(MODELPATH_DIR_CONFIGURATION_NAME, c -> {
 			c.setCanBeConsumed(true);
 			c.setCanBeResolved(false);
+			c.setVisible(false);
 			c.getAttributes().attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.class, LIBRARY_ELEMENTS_MODEL_DIR));
 			c.extendsFrom(modelpath.get());
 			c.getDependencies().add(dependencies.create(allSrcDirs));
@@ -153,6 +158,8 @@ public class ETriceBasePlugin implements Plugin<Project> {
 		NamedDomainObjectProvider<Configuration> modelpathZip = configurations.register(MODELPATH_ZIP_CONFIGURATION_NAME, c -> {
 			c.setCanBeConsumed(true);
 			c.setCanBeResolved(false);
+			// workaround to prevent auto attachment of model zipping task to archives configuration, see https://github.com/protossoftware/etrice-gradle-plugin/issues/4
+			c.setVisible(false);
 			c.getAttributes().attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.class, LIBRARY_ELEMENTS_MODEL_ZIP));
 			c.extendsFrom(modelpath.get());
 			c.getOutgoing().artifact(zipModel);
