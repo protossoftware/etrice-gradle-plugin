@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import javax.inject.Inject;
 
+import org.gradle.api.JavaVersion;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.model.ObjectFactory;
@@ -127,6 +128,13 @@ public class GenerateTask extends SourceTask {
 				// This breaks for example Files.createTempFile and Files.createTempDirectory on Windows.
 				// Therefore, we explicitly forward all environment variables to the worker process here.
 				forkOptions.environment(System.getenv());
+				// The following JVM flag allows to run older eTrice versions (which use Xtext 2.25) with Java 17+
+				// and silences illegal reflective access warnings that appear since Java 9+.
+				// The issue originates in old versions of guice which was updated in more recent Xtext versions, 
+				// see https://github.com/google/guice/issues/1085.
+				if(JavaVersion.current().isJava9Compatible()) {
+					forkOptions.jvmArgs("--add-opens", "java.base/java.lang=ALL-UNNAMED");
+				}
 			});
 		});
 		queue.submit(GeneratorWorker.class, params -> {
