@@ -441,7 +441,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>eTrice Gradle Plugin</h1>
 <div class="details">
-<span id="revnumber">version 2.3.1</span>
+<span id="revnumber">version 2.3.2</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -465,6 +465,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_etunit_convert_task">EtUnit Convert Task</a></li>
 </ul>
 </li>
+<li><a href="#_complete_example">Complete Example</a></li>
 </ul>
 </div>
 </div>
@@ -531,7 +532,7 @@ Also the <code>adhoc</code> component is created for publishing a zip containing
 <div class="title">eTrice base plugin example</div>
 <div class="content">
 <pre class="highlightjs highlight"><code data-lang="gradle" class="language-gradle hljs">plugins {
-    id "de.protos.etrice-base" version "2.3.1"
+    id "de.protos.etrice-base" version "2.3.2"
 }
 
 dependencies {
@@ -566,7 +567,7 @@ The target directory for the generated code is 'build/src-gen/room'.</p>
 <div class="title">eTrice C Plugin example</div>
 <div class="content">
 <pre class="highlightjs highlight"><code data-lang="gradle" class="language-gradle hljs">plugins {
-    id "de.protos.etrice-c" version "2.3.1"
+    id "de.protos.etrice-c" version "2.3.2"
 }
 
 dependencies {
@@ -586,7 +587,7 @@ The <code>unzipModel</code> task is set up to extract the model zips into the ta
 <div class="title">Model library plugin example</div>
 <div class="content">
 <pre class="highlightjs highlight"><code data-lang="gradle" class="language-gradle hljs">plugins {
-    id "de.protos.model-library" version "2.3.1"
+    id "de.protos.model-library" version "2.3.2"
 }
 
 dependencies {
@@ -605,7 +606,7 @@ dependencies {
 <div class="content">
 <pre class="highlightjs highlight"><code data-lang="gradle" class="language-gradle hljs">plugins {
     id "maven-publish"
-    id "de.protos.source-publish" version "2.3.1"
+    id "de.protos.source-publish" version "2.3.2"
 }
 
 zipSource.from "src"
@@ -631,7 +632,7 @@ The <code>unzipSource</code> task is configured to extract the source into 'buil
 <div class="title">Source library plugin example</div>
 <div class="content">
 <pre class="highlightjs highlight"><code data-lang="gradle" class="language-gradle hljs">plugins {
-    id "de.protos.source-library" version "2.3.1"
+    id "de.protos.source-library" version "2.3.2"
 }
 
 dependencies {
@@ -649,7 +650,7 @@ The <code>etunitConverter</code> configuration can be used to specify the classp
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code data-lang="gradle" class="language-gradle hljs">plugins {
-    id "de.protos.etunit-convert" version "2.3.1"
+    id "de.protos.etunit-convert" version "2.3.2"
 }
 
 dependencies {
@@ -791,11 +792,78 @@ Executing this task will overwrite existing eclipse modelpath files.
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_complete_example">Complete Example</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Gradle buildscript below downloads the eTrice C generator, modellib and runtime and compiles the generated source code for Windows.</p>
+</div>
+<div class="listingblock">
+<div class="title">Complete eTrice C Example</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="gradle" class="language-gradle hljs">plugins {
+    id "c"
+    id "de.protos.etrice-c" version "2.3.2"
+    id "de.protos.model-library" version "2.3.2"
+    id "de.protos.source-library" version "2.3.2"
+}
+
+repositories {
+    maven {
+        url "https://repo.eclipse.org/content/repositories/maven_central/"
+    }
+    maven {
+        url "https://repo.eclipse.org/content/repositories/etrice/"
+    }
+}
+
+dependencies {
+    generator "org.eclipse.etrice:org.eclipse.etrice.generator.c:3.2.0"
+    modelLibrary "org.eclipse.etrice:org.eclipse.etrice.modellib.c:3.2.0"
+    sourceLibrary "org.eclipse.etrice:org.eclipse.etrice.runtime.c:3.2.0"
+    sourceLibrary "org.eclipse.etrice:org.eclipse.etrice.runtime.c.mt-win-mingw:3.2.0"
+}
+
+modelSet {
+    room {
+        source.srcDirs "model", unzipModel.destination
+        source.include "**/*.room", "**/*.etmap", "**/*.etphys"
+        module = "etrice-c"
+        option "msc_instr"
+    }
+}
+
+model {
+    components {
+        main(NativeExecutableSpec) {
+            sources {
+                c {
+                    source {
+                        srcDirs = [generateRoom.genDir, unzipSource.destination]
+                        include "**/*.c"
+                    }
+                    exportedHeaders {
+                        srcDirs = [generateRoom.genDir, unzipSource.destination]
+                    }
+                    builtBy generateRoom, unzipSource
+                }
+            }
+            binaries.all {
+                cCompiler.args "-g3", "-O0"
+                linker.args "-lws2_32"
+            }
+        }
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.3.1<br>
-Last updated 2022-03-21 10:00:24 UTC
+Version 2.3.2<br>
+Last updated 2024-08-29 11:22:23 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
