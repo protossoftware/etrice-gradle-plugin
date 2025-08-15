@@ -168,6 +168,34 @@ etunitConvert {
 }
 ----
 
+== Dependency information and trees
+
+You can inspect dependencies of the build using standard Gradle tasks that are enabled in this project by default.
+
+- Text tree for a project:
++
+  gradlew :subprojects:de.protos.etrice.gradle:dependencies
+
+- Omit the project path to get the root project's configurations:
++
+  gradlew dependencies
+
+- Detailed insight into a specific dependency and its path to a configuration:
++
+  gradlew :subprojects:de.protos.etrice.gradle:dependencyInsight --dependency <group-or-module> --configuration <configurationName>
+
+- Generate HTML dependency reports for all subprojects:
++
+  gradlew htmlDependencyReportAll
+
+  The HTML reports will be written to each project's build/reports/project/dependencies directory.
+
+- Alternatively, generate plain text reports for all subprojects:
++
+  gradlew dependencyReportAll
+
+TIP: Running the dependencies task without extra flags first will print the list of available configurations for that project.
+
 == Tasks
 
 === Generate Task
