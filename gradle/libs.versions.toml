@@ -1,0 +1,2 @@
+[libraries]
+junit-jupiter = "org.junit.jupiter:junit-jupiter:5.13.4"

@@ -15,7 +15,8 @@ subprojects {
 	}
 
 	dependencies {
-		testImplementation "org.junit.jupiter:junit-jupiter:${versions.junit}"
+		testImplementation libs.junit.jupiter
+		testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 	}
 
 	test {
@@ -31,8 +32,8 @@ subprojects {
 	}
 
 	javadoc {
-		options.source = '8'
-		options.links "https://docs.oracle.com/javase/8/docs/api/",
-			"https://docs.gradle.org/${gradle.gradleVersion}/javadoc/"
+		options.showFromPublic()  // show only public classes and members
+		options.addBooleanOption 'Xdoclint:-missing', true  // silence warnings because of missing javadoc comments
+		options.links "https://docs.oracle.com/en/java/javase/17/docs/api/", "https://docs.gradle.org/${gradle.gradleVersion}/javadoc/"
 	}
 }

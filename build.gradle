@@ -2,8 +2,6 @@ plugins {
 	id "pl.allegro.tech.build.axion-release"
 }
 
-apply from: "gradle/versions.gradle"
-
 scmVersion {
 	localOnly = true
 	checks {
@@ -14,15 +12,15 @@ scmVersion {
 }
 
 allprojects {
-	group "de.protos.etrice"
-	version scmVersion.version
+	group = "de.protos.etrice"
+	version = scmVersion.version
 	
 	repositories {
 		maven {
-			url "https://repo.eclipse.org/content/repositories/maven_central/"
+			url = "https://repo.eclipse.org/content/repositories/maven_central/"
 		}
 		maven {
-			url "https://repo.eclipse.org/content/repositories/etrice/"
+			url = "https://repo.eclipse.org/content/repositories/etrice/"
 		}
 	}
 }

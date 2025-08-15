@@ -9,10 +9,10 @@ def etriceVersion = "3.2.0"
 def repositories = """\
 repositories {
 	maven {
-		url 'https://repo.eclipse.org/content/repositories/maven_central/'
+		url = 'https://repo.eclipse.org/content/repositories/maven_central/'
 	}
 	maven {
-		url 'https://repo.eclipse.org/content/repositories/etrice/'
+		url = 'https://repo.eclipse.org/content/repositories/etrice/'
 	}
 }"""
 
