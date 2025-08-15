@@ -11,10 +11,22 @@ dependencies {
 }
 
 asciidoctor {
-    outputDir = layout.buildDirectory.dir("site")
-    attributes "version-plugin": project.version,
-            "version-etrice": providers.gradleProperty("etriceVersion").orElse("5.4.0"),
-            "version-gradle" : gradle.gradleVersion
+    // Assign a concrete File to avoid capturing Provider/Project in task state
+    outputDir = layout.buildDirectory.dir("site").get().asFile
+    // Temporarily opt out of Gradle Configuration Cache for this task due to plugin limitations
+    notCompatibleWithConfigurationCache("Asciidoctor Gradle plugin may capture Gradle internals; opt-out to keep CC enabled for the rest of the build")
+
+    // Resolve all attribute values to plain Strings at configuration time so the task
+    // does not capture Providers/Project/containers in its serialized configuration.
+    def pluginVersion = project.version?.toString()
+    def etriceVersion = providers.gradleProperty("etriceVersion").orElse("5.4.0").get()
+    def gradleVersion = gradle.gradleVersion?.toString()
+
+    attributes(
+            "version-plugin": pluginVersion,
+            "version-etrice": etriceVersion,
+            "version-gradle" : gradleVersion
+    )
     jvm {
         jvmArgs(
                 "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
@@ -23,14 +35,12 @@ asciidoctor {
     }
 }
 
-tasks.register('unzipJavadoc') {
+import org.gradle.api.tasks.Sync
+
+tasks.register('unzipJavadoc', Sync) {
     dependsOn(configurations.javadoc)
-    doLast {
-        project.sync {
-            from(zipTree(configurations.javadoc.singleFile))
-            into layout.buildDirectory.dir("site/javadoc")
-        }
-    }
+    from({ zipTree(configurations.javadoc.singleFile) })
+    into layout.buildDirectory.dir("site/javadoc")
 }
 
 tasks.register('buildSite') {

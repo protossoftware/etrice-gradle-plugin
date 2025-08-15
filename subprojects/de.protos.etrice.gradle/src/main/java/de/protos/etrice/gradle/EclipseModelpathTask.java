@@ -20,6 +20,9 @@ import org.gradle.api.tasks.TaskAction;
 /**
  * Generates an eclipse modelpath file.
  */
+import org.gradle.api.tasks.CacheableTask;
+
+@CacheableTask
 public class EclipseModelpathTask extends DefaultTask {
 	
 	private final SetProperty<String> srcDirs;

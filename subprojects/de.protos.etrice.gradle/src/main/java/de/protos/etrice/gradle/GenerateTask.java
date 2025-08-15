@@ -24,6 +24,9 @@ import org.gradle.workers.WorkerExecutor;
 /**
  * Base task class for generator execution.
  */
+import org.gradle.api.tasks.CacheableTask;
+
+@CacheableTask
 public abstract class GenerateTask extends SourceTask {
 	
 	public static final String OPTION_GENDIR = "genDir";
@@ -59,7 +62,7 @@ public abstract class GenerateTask extends SourceTask {
 	/**
 	 * @return all files of the generator classpath
 	 */
-	@InputFiles
+	@org.gradle.api.tasks.Classpath
 	public ConfigurableFileCollection getClasspath() {
 		return classpath;
 	}
@@ -92,6 +95,7 @@ public abstract class GenerateTask extends SourceTask {
 	 * @return the modelpath for the generator
 	 */
 	@InputFiles
+	@org.gradle.api.tasks.PathSensitive(org.gradle.api.tasks.PathSensitivity.RELATIVE)
 	public ConfigurableFileCollection getModelpath() {
 		return modelpath;
 	}

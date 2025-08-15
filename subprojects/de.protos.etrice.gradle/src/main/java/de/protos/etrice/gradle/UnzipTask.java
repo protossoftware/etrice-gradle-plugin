@@ -13,6 +13,9 @@ import org.gradle.api.tasks.TaskAction;
 /**
  * Extracts files from archives.
  */
+import org.gradle.api.tasks.CacheableTask;
+
+@CacheableTask
 public abstract class UnzipTask extends SourceTask {
 	
 	private final FileSystemOperations fileSystemOperations;

@@ -20,6 +20,9 @@ import org.gradle.process.ExecOperations;
 /**
  * Converts etunit reports to xml test reports.
  */
+import org.gradle.api.tasks.CacheableTask;
+
+@CacheableTask
 public abstract class EtUnitConvertTask extends SourceTask {
 	
 	private static final String ETUNIT_CONVERTER_MAIN = "org.eclipse.etrice.etunit.converter.EtUnitReportConverter";
@@ -40,7 +43,7 @@ public abstract class EtUnitConvertTask extends SourceTask {
 	/**
 	 * @return the classpath that contains the etunit converter
 	 */
-	@InputFiles
+	@org.gradle.api.tasks.Classpath
 	public ConfigurableFileCollection getClasspath() {
 		return classpath;
 	}

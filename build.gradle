@@ -33,22 +33,39 @@ allprojects {
 
 // Convenience aggregate tasks to generate dependency reports for all projects
 // HTML report per project will be under <project>/build/reports/project/dependencies
-gradle.projectsEvaluated {
-	def htmlTasks = subprojects.collect { p -> p.tasks.findByName('htmlDependencyReport') }.findAll { it != null }
-	if (!htmlTasks.isEmpty()) {
-		tasks.register('htmlDependencyReportAll') {
-			group = 'Help'
-			description = 'Generates HTML dependency reports for all subprojects.'
-			dependsOn htmlTasks
-		}
-	}
+// Avoid lifecycle callbacks to stay compatible with Gradle Configuration Cache.
+// We declare aggregate tasks up-front and wire them to subproject task paths lazily.
+tasks.register('htmlDependencyReportAll') {
+	group = 'Help'
+	description = 'Generates HTML dependency reports for all subprojects.'
+	dependsOn subprojects.collect { it.path + ':htmlDependencyReport' }
+}
 
-	def txtTasks = subprojects.collect { p -> p.tasks.findByName('dependencyReport') }.findAll { it != null }
-	if (!txtTasks.isEmpty()) {
-		tasks.register('dependencyReportAll') {
-			group = 'Help'
-			description = 'Generates plain text dependency reports for all subprojects.'
-			dependsOn txtTasks
-		}
+tasks.register('dependencyReportAll') {
+	group = 'Help'
+	description = 'Generates plain text dependency reports for all subprojects.'
+	dependsOn subprojects.collect { it.path + ':dependencyReport' }
+}
+
+// Print Gradle cache locations and helpful information
+// Usage: gradlew cacheInfo
+// This does not delete anything; it only prints paths.
+tasks.register('cacheInfo') {
+	group = 'Help'
+	description = 'Prints locations of Gradle caches and notes about cleaning vs. purging caches.'
+	doLast {
+		def userHome = gradle.gradleUserHomeDir
+		println 'Gradle User Home:       ' + userHome
+		println 'Configuration cache:    ' + new File(userHome, 'caches/' + gradle.gradleVersion + '/configuration-cache')
+		println 'Local build cache:      ' + new File(userHome, 'caches/build-cache-1')
+		println 'Dependency cache:       ' + new File(userHome, 'caches/modules-2')
+		println 'Wrapper distributions:  ' + new File(userHome, 'wrapper')
+		println 'Daemons:                ' + new File(userHome, 'daemon')
+		println ''
+		println 'Note:'
+		println "- 'gradlew clean' only deletes this project\'s build/ directories."
+		println '- To reclaim space, you may manually delete the folders above when Gradle is not running.'
+		println "- Stop daemons before purging: 'gradlew --stop' (or 'gradlew.bat --stop' on Windows)."
+		println "- Consider keeping the dependency cache for faster builds; it will be repopulated on demand."
 	}
 }

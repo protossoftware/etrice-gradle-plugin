@@ -100,9 +100,29 @@ public class GradleProjectBuilder {
 		var args = new ArrayList<String>();
 		args.add(task);
 		args.add("--warning-mode=fail");  // fail on deprecation warnings
+		boolean gradleParallel = "true".equalsIgnoreCase(System.getenv("FT_GRADLE_PARALLEL")) || Boolean.getBoolean("ft.gradle.parallel");
+		if (gradleParallel) {
+			args.add("--parallel");
+		}
+		boolean cc = "true".equalsIgnoreCase(System.getenv("FT_CC")) || Boolean.getBoolean("ft.cc");
+		if (cc) {
+			args.add("--configuration-cache");
+			args.add("--configuration-cache-problems=warn");
+		}
+
+		// Choose TestKit dir strategy: shared by default for daemon reuse; 'project' for full isolation
+		String tkMode = System.getProperty("ft.testkit", System.getenv().getOrDefault("FT_TESTKIT", "shared"));
+		Path testKitDir = "project".equalsIgnoreCase(tkMode)
+			? projectDir.resolve(".gradle-testkit")
+			: baseDir.resolve(".gradle-testkit-shared");
+		try {
+			Files.createDirectories(testKitDir);
+		} catch (IOException ignored) {}
+
 		BuildResult result = GradleRunner.create()
 			.withPluginClasspath()
 			.withProjectDir(projectDir.toFile())
+			.withTestKitDir(testKitDir.toFile())
 			.withArguments(args)
 			.forwardOutput()
 			.build();

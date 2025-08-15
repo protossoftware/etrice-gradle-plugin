@@ -1,9 +1,56 @@
 package de.protos.etrice.gradle
 
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import org.gradle.testkit.runner.TaskOutcome
 
+import org.junit.jupiter.api.parallel.Execution
+import org.junit.jupiter.api.parallel.ExecutionMode
+
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicLong
+
+@Execution(ExecutionMode.CONCURRENT)
 public class FunctionalTests {
+
+static final ConcurrentHashMap<String, Long> __ftStart = new ConcurrentHashMap<>()
+static final ConcurrentHashMap<String, Long> __ftDurations = new ConcurrentHashMap<>()
+static final AtomicLong __ftTotal = new AtomicLong(0L)
+
+@BeforeEach
+void __ftBeforeEach(TestInfo info) {
+    def name = info.displayName
+    __ftStart.put(name, System.nanoTime())
+}
+
+@AfterEach
+void __ftAfterEach(TestInfo info) {
+    def name = info.displayName
+    Long s = __ftStart.remove(name)
+    if (s != null) {
+        long dMs = (System.nanoTime() - s) / 1_000_000L
+        __ftDurations.put(name, dMs)
+        __ftTotal.addAndGet(dMs)
+        println("[FT_PROFILE] TEST '" + name + "' took " + dMs + " ms")
+    }
+}
+
+@AfterAll
+static void __ftAfterAll() {
+    if (!__ftDurations.isEmpty()) {
+        def sorted = __ftDurations.entrySet().toList().sort { -it.value }
+        println("[FT_PROFILE] ===== FunctionalTests Summary =====")
+        println(String.format("[FT_PROFILE] Total %d tests, cumulative %d ms; longest:", __ftDurations.size(), __ftTotal.get()))
+        int topN = Math.min(5, sorted.size())
+        for (int i = 0; i < topN; i++) {
+            def e = sorted[i]
+            println(String.format("[FT_PROFILE] #%d %s : %d ms", i+1, e.key, e.value))
+        }
+        def fastHint = System.getenv('FT_FAST') ?: System.getProperty('ft.fast')
+        if (!('true'.equalsIgnoreCase(fastHint?.toString()))) {
+            println("[FT_PROFILE] Hint: Enable faster nested builds by setting FT_FAST=true or -Dft.fast=true")
+        }
+    }
+}
 
 def etriceVersion = "5.4.0"
 def repositories = """\
@@ -168,7 +215,6 @@ plugins {
 }
 ${repositories}
 dependencies {
-	sourceLibrary 'org.eclipse.etrice:org.eclipse.etrice.runtime.c:${etriceVersion}'
     sourceLibrary project(':lib')
 }"""
 def sourceFile = """
@@ -180,6 +226,9 @@ GradleProjectBuilder.build("etriceSourceZipUnzipTest") {
 	write("lib/build.gradle", libBuildFile)
 	write("lib/src/test.c", sourceFile)
 	write("app/build.gradle", appBuildFile)
+	gradle(":lib:zipSource") {
+		assert task(":lib:zipSource")?.outcome == TaskOutcome.SUCCESS
+	}
 	gradle("unzipSource") {
 		assert task(":app:unzipSource")?.outcome == TaskOutcome.SUCCESS
 		assert exists("app/build/sourcelib/test.c")

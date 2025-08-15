@@ -21,6 +21,17 @@ subprojects {
 
 	test {
 		useJUnitPlatform()
+		/*
+		// JUnit Jupiter intra-JVM parallelism configuration
+		// this does not apply if set from here, but it shows what can be set via -Djunit.[...] flags
+		systemProperty 'junit.jupiter.execution.parallel.enabled', 'true'
+		systemProperty 'junit.jupiter.execution.parallel.mode.default', 'same_thread' // method-level parallelism
+		systemProperty 'junit.jupiter.execution.parallel.mode.classes.default', 'concurrent' // allow class-level concurrency
+		systemProperty 'junit.jupiter.execution.parallel.config.strategy', 'fixed'
+		systemProperty 'junit.jupiter.execution.parallel.config.fixed.parallelism', '1' // amount of cpus
+
+		// for most cases it is enough to pass -Djunit.jupiter.execution.parallel.enabled=true -Dft.fast=true
+		*/
 	}
 
 	compileJava {
