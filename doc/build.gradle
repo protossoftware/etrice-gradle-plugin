@@ -7,24 +7,32 @@ configurations {
 }
 
 dependencies {
-	javadoc project(path: ':subprojects:de.protos.etrice.gradle', configuration: 'javadocElements')
+    javadoc project(path: ':subprojects:de.protos.etrice.gradle', configuration: 'javadocElements')
 }
 
 asciidoctor {
-	outputDir = layout.buildDirectory.dir("site")
-	attributes "version-plugin" : project.version,
-		"version-etrice" : '5.4.0',
-		"version-gradle" : gradle.gradleVersion
+    outputDir = layout.buildDirectory.dir("site")
+    attributes "version-plugin": project.version,
+            "version-etrice": '5.4.0',
+            "version-gradle" : gradle.gradleVersion
+    jvm {
+        jvmArgs(
+                "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
+                "--add-opens", "java.base/java.io=ALL-UNNAMED"
+        )
+    }
 }
 
-task unzipJavadoc {
-	dependsOn(configurations.javadoc)
-	doLast {
-		project.sync {
-			from(zipTree(configurations.javadoc.singleFile))
-			into layout.buildDirectory.dir("site/javadoc")
-		}
-	}
+tasks.register('unzipJavadoc') {
+    dependsOn(configurations.javadoc)
+    doLast {
+        project.sync {
+            from(zipTree(configurations.javadoc.singleFile))
+            into layout.buildDirectory.dir("site/javadoc")
+        }
+    }
 }
 
-task buildSite(dependsOn: [asciidoctor, unzipJavadoc])
+tasks.register('buildSite') {
+    dependsOn(asciidoctor, unzipJavadoc)
+}
