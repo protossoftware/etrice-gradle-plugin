@@ -13,7 +13,7 @@ dependencies {
 asciidoctor {
     outputDir = layout.buildDirectory.dir("site")
     attributes "version-plugin": project.version,
-            "version-etrice": '5.4.0',
+            "version-etrice": providers.gradleProperty("etriceVersion").orElse("5.4.0"),
             "version-gradle" : gradle.gradleVersion
     jvm {
         jvmArgs(
