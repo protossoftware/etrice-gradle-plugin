@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Collections;
 
 import org.gradle.testkit.runner.BuildResult;
@@ -96,8 +97,15 @@ public class GradleProjectBuilder {
 	 * @return the result of the build execution
 	 */
 	public BuildResult gradle(String task, @DelegatesTo(value = BuildResult.class, strategy = Closure.DELEGATE_FIRST) Closure<?> closure) {
+		var args = new ArrayList<String>();
+		args.add(task);
+		args.add("--warning-mode=fail");  // fail on deprecation warnings
 		BuildResult result = GradleRunner.create()
-			.withPluginClasspath().withProjectDir(projectDir.toFile()).withArguments(task).build();
+			.withPluginClasspath()
+			.withProjectDir(projectDir.toFile())
+			.withArguments(args)
+			.forwardOutput()
+			.build();
 		closure.setDelegate(result);
 		closure.setResolveStrategy(Closure.DELEGATE_FIRST);
 		closure.call();
