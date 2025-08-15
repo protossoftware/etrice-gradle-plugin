@@ -1,5 +1,6 @@
 plugins {
 	id "pl.allegro.tech.build.axion-release"
+	id "project-report"
 }
 
 scmVersion {
@@ -18,12 +19,36 @@ allprojects {
 	group = "de.protos.etrice"
 	version = scmVersion.version
 	
+	apply plugin: "project-report"
+	
 	repositories {
 		maven {
 			url = "https://repo.eclipse.org/content/repositories/maven_central/"
 		}
 		maven {
 			url = "https://repo.eclipse.org/content/repositories/etrice/"
+		}
+	}
+}
+
+// Convenience aggregate tasks to generate dependency reports for all projects
+// HTML report per project will be under <project>/build/reports/project/dependencies
+gradle.projectsEvaluated {
+	def htmlTasks = subprojects.collect { p -> p.tasks.findByName('htmlDependencyReport') }.findAll { it != null }
+	if (!htmlTasks.isEmpty()) {
+		tasks.register('htmlDependencyReportAll') {
+			group = 'Help'
+			description = 'Generates HTML dependency reports for all subprojects.'
+			dependsOn htmlTasks
+		}
+	}
+
+	def txtTasks = subprojects.collect { p -> p.tasks.findByName('dependencyReport') }.findAll { it != null }
+	if (!txtTasks.isEmpty()) {
+		tasks.register('dependencyReportAll') {
+			group = 'Help'
+			description = 'Generates plain text dependency reports for all subprojects.'
+			dependsOn txtTasks
 		}
 	}
 }
