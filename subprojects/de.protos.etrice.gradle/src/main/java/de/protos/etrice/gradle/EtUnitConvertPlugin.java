@@ -57,10 +57,10 @@ public class EtUnitConvertPlugin implements Plugin<Project> {
 		});
 		
 		NamedDomainObjectContainer<EtUnitConvertTask> etunitConverter = objects.domainObjectContainer(EtUnitConvertTask.class, name -> {
-			return tasks.create(name, EtUnitConvertTask.class, t -> {
+			return tasks.register(name, EtUnitConvertTask.class, t -> {
 				t.getClasspath().from(etunitClasspath);
 				t.include("**/*.etu");
-			});
+			}).get();
 		});
 		
 		extensions.add(ETUNIT_CONVERTER_EXTENSION_NAME, etunitConverter);

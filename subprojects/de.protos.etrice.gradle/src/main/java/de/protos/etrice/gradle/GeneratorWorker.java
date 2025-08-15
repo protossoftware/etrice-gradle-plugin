@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Optional;
@@ -11,7 +12,6 @@ import java.util.Optional;
 import com.google.inject.Module;
 
 import org.eclipse.etrice.generator.base.GeneratorApplication;
-import org.gradle.api.UncheckedIOException;
 import org.gradle.workers.WorkAction;
 
 /**

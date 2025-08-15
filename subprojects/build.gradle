@@ -29,6 +29,7 @@ subprojects {
 			// https://docs.gradle.org/current/userguide/compatibility.html
 			options.release = 8
 		}
+		options.compilerArgs.addAll '-Xlint:all', '-Werror'  // treat compiler warnings as errors
 	}
 
 	javadoc {
