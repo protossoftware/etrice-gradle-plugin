@@ -3,6 +3,9 @@ plugins {
 }
 
 scmVersion {
+	tag {
+		prefix = 'release-'
+	}
 	localOnly = true
 	checks {
 		uncommittedChanges = false
