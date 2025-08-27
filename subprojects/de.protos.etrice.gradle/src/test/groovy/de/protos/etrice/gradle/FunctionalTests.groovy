@@ -5,14 +5,14 @@ import org.gradle.testkit.runner.TaskOutcome
 
 public class FunctionalTests {
 
-def etriceVersion = "3.2.0"
+def etriceVersion = "5.4.0"
 def repositories = """\
 repositories {
 	maven {
-		url 'https://repo.eclipse.org/content/repositories/maven_central/'
+		url = 'https://repo.eclipse.org/content/repositories/maven_central/'
 	}
 	maven {
-		url 'https://repo.eclipse.org/content/repositories/etrice/'
+		url = 'https://repo.eclipse.org/content/repositories/etrice/'
 	}
 }"""
 
@@ -217,6 +217,78 @@ GradleProjectBuilder.build("etunitConvertTest") {
 	gradle("convertTestResults") {
 		assert task(":convertTestResults")?.outcome == TaskOutcome.SUCCESS
 		assert exists("log/test2.xml")
+	}
+}}
+
+@Test
+void "snapshot minimal C generation"() {
+def buildFile = """\
+plugins {
+	id 'de.protos.etrice-c'
+}
+${repositories}
+dependencies {
+	generator 'org.eclipse.etrice:org.eclipse.etrice.generator.c:${etriceVersion}'
+}
+modelSet {
+	room
+}
+"""
+
+def roomFile = """\
+RoomModel test {
+	ActorClass ATest {
+	}
+}
+"""
+
+GradleProjectBuilder.build("etriceCSnapshotTest") {
+	write("build.gradle", buildFile)
+	write("model/test.room", roomFile)
+	gradle("build") {
+		assert task(":generateRoom")?.outcome == TaskOutcome.SUCCESS
+	}
+	// Basic snapshot assertions: check deterministic key tokens in generated file
+	assert exists("build/src-gen/room/test/ATest.c")
+	def gen = new File(projectDir.toFile(), "build/src-gen/room/test/ATest.c").text
+	assert gen.contains("ATest")
+	assert gen.contains("#include")
+}
+}
+
+@Test
+void "model zip is not run on regular assemble (regression guard for #4)"() {
+def buildFile = """\
+plugins {
+	id 'de.protos.etrice-base'
+}
+"""
+
+GradleProjectBuilder.build("etriceArchivesModelGuardTest") {
+	write("build.gradle", buildFile)
+	gradle("assemble") {
+		assert task(":zipModel") == null : "modelZip must not run on regular assemble"
+	}
+}}
+
+@Test
+void "source zip is not run on regular assemble (regression guard for #4)"() {
+// Ensure that the source-publish plugin also does not attach to archives
+// even when a source zip task is present
+
+def buildFile = """\
+plugins {
+	id 'base'
+	id 'de.protos.source-publish'
+}
+zipSource.from 'src'
+"""
+
+GradleProjectBuilder.build("etriceArchivesSourceGuardTest") {
+	write("build.gradle", buildFile)
+	write("src/dummy.c", "int x() { return 1; }")
+	gradle("assemble") {
+		assert task(":zipSource") == null : "zipSource task must not run on regular assemble"
 	}
 }}
 

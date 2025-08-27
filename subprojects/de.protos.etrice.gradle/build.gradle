@@ -1,68 +1,60 @@
 dependencies {
-	// Compile only dependency on eTrice for the Gradle worker implementation
+	// Compile only dependency on eTrice for the Gradle worker implementation - minimum required etrice version
 	compileOnly "org.eclipse.etrice:org.eclipse.etrice.generator.base:3.0.0"
 }
 
 gradlePlugin {
+	website.set("https://protossoftware.github.io/etrice-gradle-plugin/")
+	vcsUrl.set("https://github.com/protossoftware/etrice-gradle-plugin")
 	plugins {
 		"etrice-base" {
 			id = "de.protos.etrice-base"
 			implementationClass = "de.protos.etrice.gradle.ETriceBasePlugin"
+			displayName = "eTrice Base Plugin"
+			description = "Gradle plugins for eTrice integration"
+			tags.set(["etrice"]) 
 		}
 		"etrice-c" {
 			id = "de.protos.etrice-c"
 			implementationClass = "de.protos.etrice.gradle.ETriceCPlugin"
+			displayName = "eTrice C Plugin"
+			description = "Gradle plugins for eTrice integration"
+			tags.set(["etrice"]) 
 		}
 		"etrice-java" {
 			id = "de.protos.etrice-java"
 			implementationClass = "de.protos.etrice.gradle.ETriceJavaPlugin"
+			displayName = "eTrice Java Plugin"
+			description = "Gradle plugins for eTrice integration"
+			tags.set(["etrice"]) 
 		}
 		"model-library" {
 			id = "de.protos.model-library"
 			implementationClass = "de.protos.etrice.gradle.ModelLibraryPlugin"
+			displayName = "eTrice Model Library Plugin"
+			description = "Gradle plugins for eTrice integration"
+			tags.set(["etrice"]) 
 		}
 		"source-library" {
 			id = "de.protos.source-library"
 			implementationClass = "de.protos.etrice.gradle.SourceLibraryPlugin"
+			displayName = "eTrice Source Library Plugin"
+			description = "Gradle plugins for eTrice integration"
+			tags.set(["etrice"]) 
 		}
 		"source-publish" {
 			id = "de.protos.source-publish"
 			implementationClass = "de.protos.etrice.gradle.SourcePublishPlugin"
+			displayName = "eTrice Source Publish Plugin"
+			description = "Gradle plugins for eTrice integration"
+			tags.set(["etrice"]) 
 		}
 		"etunit-convert" {
 			id = "de.protos.etunit-convert"
 			implementationClass = "de.protos.etrice.gradle.EtUnitConvertPlugin"
-		}
-	}
-	
-	pluginBundle {
-		website = "https://protossoftware.github.io/etrice-gradle-plugin/"
-		vcsUrl = "https://github.com/protossoftware/etrice-gradle-plugin"
-		description = "Gradle plugins for eTrice integration"
-		tags = ["etrice"]
-		
-		plugins {
-			"etrice-base" {
-				displayName = "eTrice Base Plugin"
-			}
-			"etrice-c" {
-				displayName = "eTrice C Plugin"
-			}
-			"etrice-java" {
-				displayName = "eTrice Java Plugin"
-			}
-			"model-library" {
-				displayName = "eTrice Model Library Plugin"
-			}
-			"source-library" {
-				displayName = "eTrice Source Library Plugin"
-			}
-			"source-publish" {
-				displayName = "eTrice Source Publish Plugin"
-			}
-			"etunit-convert" {
-				displayName = "etUnit Convert Plugin"
-			}
+			displayName = "etUnit Convert Plugin"
+			description = "Gradle plugins for eTrice integration"
+			tags.set(["etrice"]) 
 		}
 	}
 }

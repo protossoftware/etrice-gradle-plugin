@@ -18,17 +18,13 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.internal.classpath.CachedClasspathTransformer;
-import org.gradle.internal.classpath.ClassPath;
-import org.gradle.internal.classpath.DefaultClassPath;
-import org.gradle.internal.classpath.CachedClasspathTransformer.StandardTransform;
 import org.gradle.workers.WorkQueue;
 import org.gradle.workers.WorkerExecutor;
 
 /**
- * Base task class for generator execution. 
+ * Base task class for generator execution.
  */
-public class GenerateTask extends SourceTask {
+public abstract class GenerateTask extends SourceTask {
 	
 	public static final String OPTION_GENDIR = "genDir";
 	public static final String OPTION_MODELPATH = "modelpath";
@@ -42,19 +38,16 @@ public class GenerateTask extends SourceTask {
 	private final MapProperty<String, Object> options;
 	
 	private final WorkerExecutor executor;
-	private final CachedClasspathTransformer transformer;
 	
 	/**
 	 * Creates a new task for a generator.
 	 * 
 	 * @param executor Gradle worker executor
-	 * @param transformer Gradle cached classpath transformer
 	 * @param objects Gradle object factory
 	 */
 	@Inject
-	public GenerateTask(WorkerExecutor executor, CachedClasspathTransformer transformer, ObjectFactory objects) {
+	public GenerateTask(WorkerExecutor executor, ObjectFactory objects) {
 		this.executor = executor;
-		this.transformer = transformer;
 		
 		this.classpath = objects.fileCollection();
 		this.module = objects.property(String.class);
@@ -111,17 +104,13 @@ public class GenerateTask extends SourceTask {
 		// Assemble the command line arguments
 		String[] args = collectArguments();
 		
-		// Copy the jars on the classpath to a cache to avoid file locks on the actual files.
-		// This also results in a new worker process if the files on the classpath are modified because
-		// the file paths of the transformed classpath change every time the actual files are modified.
-		// Unfortunately the Gradle worker api doesn't take care of these issues and this
-		// approach uses internal Gradle api.
-		ClassPath cp = DefaultClassPath.of(getClasspath());
-		ClassPath cachedCp =  transformer.transform(cp, StandardTransform.None);
-		
 		// Submit the request to a worker process that runs the generator.
-		WorkQueue queue = executor.processIsolation(spec -> {
-			spec.getClasspath().from(cachedCp.getAsFiles());
+ 		WorkQueue queue = executor.processIsolation(spec -> {
+			// Since Gradle version 7.6, the Gradle worker api copies the jars on the classpath to a cache to
+			// avoid file locks on the actual files, see https://github.com/gradle/gradle/pull/21475.
+			// This also results in a new worker process if the files on the classpath are modified because the
+			// file paths of the transformed classpath change every time the actual files are modified.
+ 			spec.getClasspath().from(getClasspath());
 			spec.forkOptions(forkOptions -> {
 				// Environment variables are not forwarded to worker processes by default,
 				// see https://github.com/gradle/gradle/issues/8030.

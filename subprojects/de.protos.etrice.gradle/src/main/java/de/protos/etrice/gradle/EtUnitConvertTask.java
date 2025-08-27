@@ -18,9 +18,9 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 
 /**
- * Converts etunit reports to xml test reports. 
+ * Converts etunit reports to xml test reports.
  */
-public class EtUnitConvertTask extends SourceTask {
+public abstract class EtUnitConvertTask extends SourceTask {
 	
 	private static final String ETUNIT_CONVERTER_MAIN = "org.eclipse.etrice.etunit.converter.EtUnitReportConverter";
 	

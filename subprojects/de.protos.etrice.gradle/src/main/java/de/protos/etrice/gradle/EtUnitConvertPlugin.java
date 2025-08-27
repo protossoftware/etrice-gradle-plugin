@@ -26,7 +26,7 @@ public class EtUnitConvertPlugin implements Plugin<Project> {
 	public static final String ETUNIT_CONVERTER_CONFIGURATION_NAME = "etunitConverter";
 	public static final String ETUNIT_CONVERTER_CLASSPATH_CONFIGURATION_NAME = "etunitConvertClasspath";
 	
-	private static final String ETUNIT_CONVERTER_DEFAULT_DEPENDENCY = "org.eclipse.etrice:org.eclipse.etrice.etunit.converter:3.2.0";
+	private static final String ETUNIT_CONVERTER_DEFAULT_DEPENDENCY = "org.eclipse.etrice:org.eclipse.etrice.etunit.converter:5.4.0";
 	
 	@Override
 	public void apply(Project project) {
@@ -57,10 +57,10 @@ public class EtUnitConvertPlugin implements Plugin<Project> {
 		});
 		
 		NamedDomainObjectContainer<EtUnitConvertTask> etunitConverter = objects.domainObjectContainer(EtUnitConvertTask.class, name -> {
-			return tasks.create(name, EtUnitConvertTask.class, t -> {
+			return tasks.register(name, EtUnitConvertTask.class, t -> {
 				t.getClasspath().from(etunitClasspath);
 				t.include("**/*.etu");
-			});
+			}).get();
 		});
 		
 		extensions.add(ETUNIT_CONVERTER_EXTENSION_NAME, etunitConverter);
