@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Optional;
 
 import com.google.inject.Module;
@@ -21,7 +21,7 @@ import org.gradle.workers.WorkAction;
 public abstract class GeneratorWorker implements WorkAction<GeneratorParameters> {
 
 	@Deprecated private static final String MODULE_CLASS_NAME_LOCATION = "META-INF/generators/";
-	private static final HashMap<String, GeneratorApplication> CACHE = new HashMap<>();
+    private static final ConcurrentHashMap<String, GeneratorApplication> CACHE = new ConcurrentHashMap<>();
 	
 	/**
 	 * Runs the generator with the passed arguments.

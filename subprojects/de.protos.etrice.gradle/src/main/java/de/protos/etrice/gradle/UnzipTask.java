@@ -9,10 +9,12 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 
 /**
  * Extracts files from archives.
  */
+@DisableCachingByDefault(because="Not worth caching") // same as for gradles Zip task
 public abstract class UnzipTask extends SourceTask {
 	
 	private final FileSystemOperations fileSystemOperations;

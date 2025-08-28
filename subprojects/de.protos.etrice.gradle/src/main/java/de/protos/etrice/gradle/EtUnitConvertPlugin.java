@@ -26,7 +26,9 @@ public class EtUnitConvertPlugin implements Plugin<Project> {
 	public static final String ETUNIT_CONVERTER_CONFIGURATION_NAME = "etunitConverter";
 	public static final String ETUNIT_CONVERTER_CLASSPATH_CONFIGURATION_NAME = "etunitConvertClasspath";
 	
-	private static final String ETUNIT_CONVERTER_DEFAULT_DEPENDENCY = "org.eclipse.etrice:org.eclipse.etrice.etunit.converter:5.4.0";
+	// can be overridden via -PetriceVersion=<ver>
+    private static final String DEFAULT_ETRICE_VERSION = "5.4.0";
+	private static final String ETUNIT_CONVERTER_GAV_PREFIX = "org.eclipse.etrice:org.eclipse.etrice.etunit.converter:";
 	
 	@Override
 	public void apply(Project project) {
@@ -39,11 +41,18 @@ public class EtUnitConvertPlugin implements Plugin<Project> {
 		
 		plugins.apply(JvmEcosystemPlugin.class);
 		
+		// Lazily determine the converter dependency using a project property if provided
+		String etriceVersion = (String) project.findProperty("etriceVersion");
+		if (etriceVersion == null || etriceVersion.isEmpty()) {
+			etriceVersion = DEFAULT_ETRICE_VERSION;
+		}
+		final String converterDependency = ETUNIT_CONVERTER_GAV_PREFIX + etriceVersion;
+		
 		NamedDomainObjectProvider<Configuration> etunit = configurations.register(ETUNIT_CONVERTER_CONFIGURATION_NAME, c -> {
 			c.setCanBeConsumed(false);
 			c.setCanBeResolved(false);
 			c.setVisible(false);
-			c.defaultDependencies(ds ->	ds.add(dependencies.create(ETUNIT_CONVERTER_DEFAULT_DEPENDENCY)));
+			c.defaultDependencies(ds -> ds.add(dependencies.create(converterDependency)));
 		});
 		
 		NamedDomainObjectProvider<Configuration> etunitClasspath = configurations.register(ETUNIT_CONVERTER_CLASSPATH_CONFIGURATION_NAME, c -> {
