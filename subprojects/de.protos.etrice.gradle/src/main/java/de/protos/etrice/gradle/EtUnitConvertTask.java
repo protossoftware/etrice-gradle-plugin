@@ -15,14 +15,13 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFiles;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.CacheableTask;
 import org.gradle.process.ExecOperations;
 
 /**
  * Converts etunit reports to xml test reports.
  */
-import org.gradle.api.tasks.CacheableTask;
-
-@CacheableTask
+@CacheableTask // TODO: inspect how cacheable task interacts with SourceTask (where inputs have PathSensitivity.ABSOLUTE)
 public abstract class EtUnitConvertTask extends SourceTask {
 	
 	private static final String ETUNIT_CONVERTER_MAIN = "org.eclipse.etrice.etunit.converter.EtUnitReportConverter";

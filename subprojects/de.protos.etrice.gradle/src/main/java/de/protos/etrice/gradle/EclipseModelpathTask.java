@@ -16,13 +16,12 @@ import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.CacheableTask;
 
 /**
  * Generates an eclipse modelpath file.
  */
-import org.gradle.api.tasks.CacheableTask;
-
-@CacheableTask
+@CacheableTask // TODO: test if caching is worth here (writeModelpath is very simple, but the task can be very repetitive in some situations)
 public class EclipseModelpathTask extends DefaultTask {
 	
 	private final SetProperty<String> srcDirs;

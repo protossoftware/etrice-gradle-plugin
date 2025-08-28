@@ -18,15 +18,14 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.CacheableTask;
 import org.gradle.workers.WorkQueue;
 import org.gradle.workers.WorkerExecutor;
 
 /**
  * Base task class for generator execution.
  */
-import org.gradle.api.tasks.CacheableTask;
-
-@CacheableTask
+@CacheableTask // TODO: inspect how cacheable task interacts with SourceTask (where inputs have PathSensitivity.ABSOLUTE)
 public abstract class GenerateTask extends SourceTask {
 	
 	public static final String OPTION_GENDIR = "genDir";
