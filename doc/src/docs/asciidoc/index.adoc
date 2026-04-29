@@ -214,6 +214,11 @@ All generator classes are resolved and loaded at runtime.
 TIP: Try to use the same classpath for all your generate tasks.
 This allows reusing the worker processes and therefore speeding up the build process significantly while reducing its memory footprint.
 
+==== Generator debugging
+
+To debug the generator process, pass the `--debug-jvm` command line option to a generate task, e.g. `./gradlew generateRoom --debug-jvm`.
+The process is then started suspended and listening on port 5005.
+
 === Eclipse Modelpath Task
 
 This task type generates an eclipse modelpath file.
