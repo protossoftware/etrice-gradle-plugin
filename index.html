@@ -442,7 +442,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>eTrice Gradle Plugin</h1>
 <div class="details">
-<span id="revnumber">version 2.3.3</span>
+<span id="revnumber">version 2.4.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -533,7 +533,7 @@ Also the <code>adhoc</code> component is created for publishing a zip containing
 <div class="title">eTrice base plugin example</div>
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-gradle hljs" data-lang="gradle">plugins {
-    id "de.protos.etrice-base" version "2.3.3"
+    id "de.protos.etrice-base" version "2.4.0"
 }
 
 dependencies {
@@ -568,7 +568,7 @@ The target directory for the generated code is 'build/src-gen/room'.</p>
 <div class="title">eTrice C Plugin example</div>
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-gradle hljs" data-lang="gradle">plugins {
-    id "de.protos.etrice-c" version "2.3.3"
+    id "de.protos.etrice-c" version "2.4.0"
 }
 
 dependencies {
@@ -588,7 +588,7 @@ The <code>unzipModel</code> task is set up to extract the model zips into the ta
 <div class="title">Model library plugin example</div>
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-gradle hljs" data-lang="gradle">plugins {
-    id "de.protos.model-library" version "2.3.3"
+    id "de.protos.model-library" version "2.4.0"
 }
 
 dependencies {
@@ -607,7 +607,7 @@ dependencies {
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-gradle hljs" data-lang="gradle">plugins {
     id "maven-publish"
-    id "de.protos.source-publish" version "2.3.3"
+    id "de.protos.source-publish" version "2.4.0"
 }
 
 zipSource.from "src"
@@ -633,7 +633,7 @@ The <code>unzipSource</code> task is configured to extract the source into 'buil
 <div class="title">Source library plugin example</div>
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-gradle hljs" data-lang="gradle">plugins {
-    id "de.protos.source-library" version "2.3.3"
+    id "de.protos.source-library" version "2.4.0"
 }
 
 dependencies {
@@ -651,7 +651,7 @@ The <code>etunitConverter</code> configuration can be used to specify the classp
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-gradle hljs" data-lang="gradle">plugins {
-    id "de.protos.etunit-convert" version "2.3.3"
+    id "de.protos.etunit-convert" version "2.4.0"
 }
 
 dependencies {
@@ -759,6 +759,13 @@ This allows reusing the worker processes and therefore speeding up the build pro
 </table>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_generator_debugging">Generator debugging</h4>
+<div class="paragraph">
+<p>To debug the generator process, pass the <code>--debug-jvm</code> command line option to a generate task, e.g. <code>./gradlew generateRoom --debug-jvm</code>.
+The process is then started suspended and listening on port 5005.</p>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_eclipse_modelpath_task">Eclipse Modelpath Task</h3>
@@ -804,9 +811,9 @@ Executing this task will overwrite existing eclipse modelpath files.
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-gradle hljs" data-lang="gradle">plugins {
     id "c"
-    id "de.protos.etrice-c" version "2.3.3"
-    id "de.protos.model-library" version "2.3.3"
-    id "de.protos.source-library" version "2.3.3"
+    id "de.protos.etrice-c" version "2.4.0"
+    id "de.protos.model-library" version "2.4.0"
+    id "de.protos.source-library" version "2.4.0"
 }
 
 repositories {
@@ -863,8 +870,8 @@ model {
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.3.3<br>
-Last updated 2025-08-27 12:56:55 UTC
+Version 2.4.0<br>
+Last updated 2026-04-30 08:45:46 UTC
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
