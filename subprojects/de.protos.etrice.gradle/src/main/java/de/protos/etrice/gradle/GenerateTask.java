@@ -18,6 +18,7 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.options.Option;
 import org.gradle.workers.WorkQueue;
 import org.gradle.workers.WorkerExecutor;
 
@@ -36,6 +37,7 @@ public abstract class GenerateTask extends SourceTask {
 	private final DirectoryProperty genDir;
 	private final ConfigurableFileCollection modelpath;
 	private final MapProperty<String, Object> options;
+	private final Property<Boolean> debugJvm;
 	
 	private final WorkerExecutor executor;
 	
@@ -54,6 +56,7 @@ public abstract class GenerateTask extends SourceTask {
 		this.genDir = objects.directoryProperty();
 		this.modelpath = objects.fileCollection();
 		this.options = objects.mapProperty(String.class, Object.class);
+		this.debugJvm = objects.property(Boolean.class).convention(false);
 	}
 	
 	/**
@@ -95,7 +98,18 @@ public abstract class GenerateTask extends SourceTask {
 	public ConfigurableFileCollection getModelpath() {
 		return modelpath;
 	}
-	
+
+	/**
+	 * When enabled, the process is started suspended and listening on port 5005.
+	 *
+	 * @return whether to enable or disable debugging for the process
+	 */
+	@Input
+	@Option(option = "debug-jvm", description = "Enable debugging for the process. The process is started suspended and listening on port 5005.")
+	public Property<Boolean> getDebug() {
+		return debugJvm;
+	}
+
 	/**
 	 * Executes the generator with the configured arguments.
 	 */
@@ -124,6 +138,7 @@ public abstract class GenerateTask extends SourceTask {
 				if(JavaVersion.current().isJava9Compatible()) {
 					forkOptions.jvmArgs("--add-opens", "java.base/java.lang=ALL-UNNAMED");
 				}
+				forkOptions.setDebug(debugJvm.get());
 			});
 		});
 		queue.submit(GeneratorWorker.class, params -> {
