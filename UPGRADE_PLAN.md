@@ -1,7 +1,8 @@
 # Upgrade Plan — Gradle 9 / JDK 25 and dependency refresh
 
-Status: **planned** (nothing executed yet). Work through the phases in order; each phase
-leaves the build green (`./gradlew build buildSite`) and can ship independently.
+Status: **in progress** — phases 0–1 complete, see the checkboxes below.
+Work through the phases in order; each phase leaves the build green
+(`./gradlew build buildSite`) and can ship independently.
 Update this file as steps are completed.
 
 ## Current state (September 2026)
@@ -36,25 +37,25 @@ Compatibility research (official sources, checked 2026-09):
 * eTrice examples/tests/docs on **5.9.0**; `compileOnly` minimum remains **3.0.0**.
 * Plugin consumers: decide the documented minimum Gradle version (phase 5 decision).
 
-## Phase 0 — Safety net (no functional change)
+## Phase 0 — Safety net (no functional change) — DONE
 
 1. Record the baseline: `JAVA_HOME=<jdk17> ./gradlew build buildSite` on the current
    Gradle 7.6 must pass (verified 2026-09).
 2. Add Gradle's upgrade feedback loop to CI (optional but recommended): run one CI job with
    `--warning-mode=fail` (the TestKit tests already enforce this) so new deprecations fail early.
 
-## Phase 1 — Build tooling refresh on Gradle 7.6 (low risk)
+## Phase 1 — Build tooling refresh on Gradle 7.6 (low risk) — DONE
 
 All chosen versions support Gradle 7.6 *and* 9.x, so they can land before the Gradle jump.
 
 | Change | File | From → To |
 | --- | --- | --- |
-| axion-release | `settings.gradle` | 1.20.1 → 1.21.3 |
-| plugin-publish | `settings.gradle` | 1.3.1 → 2.2.1 |
-| JUnit Jupiter | `gradle/libs.versions.toml` | 5.13.4 → 5.14.4 (stay on 5.x for now) |
-| actions/checkout | `.github/workflows/*.yml` | v4 → v7 |
-| actions/setup-java | `.github/workflows/*.yml` | v4 → v6 |
-| peaceiris/actions-gh-pages | `.github/workflows/publish.yml` | v3 → v4 |
+| axion-release | `settings.gradle` | 1.20.1 → 1.21.3 ✅ |
+| plugin-publish | `settings.gradle` | 1.3.1 → 2.2.1 ✅ |
+| JUnit Jupiter | `gradle/libs.versions.toml` | 5.13.4 → 5.14.4 ✅ |
+| actions/checkout | `.github/workflows/*.yml` | v4 → v7 ✅ |
+| actions/setup-java | `.github/workflows/*.yml` | v4 → v6 ✅ |
+| peaceiris/actions-gh-pages | `.github/workflows/publish.yml` | v3 → v4 ✅ |
 
 Notes:
 
