@@ -1,5 +1,7 @@
 package de.protos.etrice.gradle
 
+import org.gradle.api.JavaVersion
+import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Test
 import org.gradle.testkit.runner.TaskOutcome
 
@@ -15,6 +17,14 @@ repositories {
 		url = 'https://repo.eclipse.org/content/repositories/etrice/'
 	}
 }"""
+
+/**
+ * Skips compatibility tests for Gradle versions that cannot run on the current JDK.
+ * The tested Gradle versions run in the test JVM, Gradle 7.6 supports at most Java 19.
+ */
+private static void assumeLegacyGradleCompatibleJdk() {
+	Assumptions.assumeTrue(JavaVersion.current() <= JavaVersion.VERSION_19)
+}
 
 @Test
 void "build empty eTrice project"() {
@@ -289,6 +299,70 @@ GradleProjectBuilder.build("etriceArchivesSourceGuardTest") {
 	write("src/dummy.c", "int x() { return 1; }")
 	gradle("assemble") {
 		assert task(":zipSource") == null : "zipSource task must not run on regular assemble"
+	}
+}}
+
+@Test
+void "plugin is compatible with gradle 7"() {
+assumeLegacyGradleCompatibleJdk()
+def buildFile = """\
+plugins {
+	id 'de.protos.etrice-base'
+}
+modelSet {
+	test
+}"""
+GradleProjectBuilder.build("etriceGradle76CompatTest") {
+	write("build.gradle", buildFile)
+	gradle("generate", "7.6.6") {
+		assert task(":generateTest")?.outcome == TaskOutcome.NO_SOURCE
+	}
+}}
+
+@Test
+void "model zip is not run on regular assemble with gradle 7 (regression guard for #4)"() {
+assumeLegacyGradleCompatibleJdk()
+def buildFile = """\
+plugins {
+	id 'de.protos.etrice-base'
+}
+"""
+GradleProjectBuilder.build("etriceGradle76ArchivesModelGuardTest") {
+	write("build.gradle", buildFile)
+	gradle("assemble", "7.6.6") {
+		assert task(":zipModel") == null : "modelZip must not run on regular assemble"
+	}
+}}
+
+@Test
+void "plugin is compatible with gradle 8"() {
+assumeLegacyGradleCompatibleJdk()
+def buildFile = """\
+plugins {
+	id 'de.protos.etrice-base'
+}
+modelSet {
+	test
+}"""
+GradleProjectBuilder.build("etriceGradle8CompatTest") {
+	write("build.gradle", buildFile)
+	gradle("generate", "8.14.5") {
+		assert task(":generateTest")?.outcome == TaskOutcome.NO_SOURCE
+	}
+}}
+
+@Test
+void "model zip is not run on regular assemble with gradle 8 (regression guard for #4)"() {
+assumeLegacyGradleCompatibleJdk()
+def buildFile = """\
+plugins {
+	id 'de.protos.etrice-base'
+}
+"""
+GradleProjectBuilder.build("etriceGradle8ArchivesModelGuardTest") {
+	write("build.gradle", buildFile)
+	gradle("assemble", "8.14.5") {
+		assert task(":zipModel") == null : "modelZip must not run on regular assemble"
 	}
 }}
 

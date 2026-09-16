@@ -116,23 +116,22 @@ The actual modernization step. Java 25 needs Gradle ≥ 9.1.0, hence 9.7.1.
    JDK 17; TestKit tests run real Gradle 9.7.1 builds with `--warning-mode=fail`.
 6. Optional hardening (phase 4): compatibility legs on Gradle 7.6/8.x.
 
-## Phase 4 — Decide the plugin baseline (semver decision)
+## Phase 4 — Decide the plugin baseline (semver decision) — DONE (Option A)
 
-The plugins are compiled against the building Gradle's API. Today the docs state
-"requires at least Gradle {version-gradle}" (= 7.6). After phase 3 that statement becomes 9.7.1.
+**Decision: keep `options.release = 8` and keep supporting Gradle 7.6+ consumers.**
 
-Two coherent options:
-
-* **A. Conservative (recommended): keep `options.release = 8` and keep supporting Gradle 7.6+
-  consumers.** The codebase uses no post-7.6 APIs, so the published plugin keeps working on
-  7.6/8.x builds. Keep the docs statement at 7.6 (set `version-gradle` attribute explicitly
-  in `doc/build.gradle` instead of `gradle.gradleVersion`). No major version bump required.
-* **B. Aggressive: require Gradle 9 / Java 17.** Bump `options.release` to 17, update the docs,
-  release as **3.0.0** (breaking change). Only worth it if new Gradle-9-only APIs or
-  configuration-cache support are needed.
-
-Either way, keep the `--add-opens java.base/java.lang=ALL-UNNAMED` workaround for older
-eTrice/Xtext versions in `GenerateTask` (still required for Java 9+ runtimes).
+* The plugin bytecode target stays at Java 8, so consumers on Gradle 7.6–8.x running Java 8
+  can still load the plugin.
+* `doc/build.gradle` pins the `version-gradle` attribute to the actual minimum (7.6)
+  instead of deriving it from the building Gradle version.
+* The removed `Configuration.setVisible(false)` calls turned out to be **still load-bearing
+  on Gradle 7.6/8.14** (verified by new compatibility tests: without them, `zipModel`
+  re-attaches to `assemble`, the issue #4 regression). Restored via `GradleCompat.setInvisible`,
+  which only calls the deprecated property on Gradle < 9 (where it works and is not
+  deprecated). On Gradle 9+ it is a no-op and must not be called.
+* New functional tests guard the minimum supported Gradle versions 7.6.6 and 8.14.5
+  (basic build + issue #4 assemble guards); they self-skip on JDKs that cannot run old
+  Gradle (e.g. JDK 25). The new `compat` CI job (JDK 17) keeps them running.
 
 ## Phase 5 — Library refresh
 

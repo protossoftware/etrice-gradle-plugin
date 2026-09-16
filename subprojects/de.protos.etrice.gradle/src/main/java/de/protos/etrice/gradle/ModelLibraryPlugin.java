@@ -35,12 +35,14 @@ public class ModelLibraryPlugin implements Plugin<Project> {
 			c.setCanBeConsumed(false);
 			c.setCanBeResolved(false);
 			c.setTransitive(false);
+			GradleCompat.setInvisible(c);
 		});
-		
+
 		NamedDomainObjectProvider<Configuration> unzipModelSource = configurations.register(UNZIP_MODEL_SOURCE_CONFIGURATION_NAME, c -> {
 			c.setCanBeConsumed(false);
 			c.setCanBeResolved(true);
 			c.setTransitive(false);
+			GradleCompat.setInvisible(c);
 			c.getAttributes().attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.class, ETriceBasePlugin.LIBRARY_ELEMENTS_MODEL_ZIP));
 			c.extendsFrom(modelLibrary.get());
 		});

@@ -27,7 +27,8 @@ asciidoctor {
 	outputDir = layout.buildDirectory.dir("site")
 	attributes "version-plugin" : project.version,
 		"version-etrice" : '5.4.0',
-		"version-gradle" : gradle.gradleVersion
+		// minimum Gradle version supported by the published plugins, see FunctionalTests
+		"version-gradle" : '7.6'
 }
 
 tasks.register("unzipJavadoc", UnzipJavadocTask) {
