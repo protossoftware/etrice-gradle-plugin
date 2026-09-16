@@ -1,6 +1,10 @@
+import org.gradle.api.artifacts.VersionCatalogsExtension
+
 plugins {
 	id "com.gradle.plugin-publish" apply false
 }
+
+def junitJupiter = extensions.getByType(VersionCatalogsExtension).named("libs").findLibrary("junit-jupiter").get()
 
 subprojects {
 	apply plugin: "java-library"
@@ -15,7 +19,7 @@ subprojects {
 	}
 
 	dependencies {
-		testImplementation libs.junit.jupiter
+		testImplementation junitJupiter
 		testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 	}
 
@@ -28,13 +32,17 @@ subprojects {
 			// Compile for minimum Java version supported by Gradle
 			// https://docs.gradle.org/current/userguide/compatibility.html
 			options.release = 8
+			// Newer JDKs turn the release 8 option into an obsolete-option warning, -Werror would fail the build
+			options.compilerArgs.addAll '-Xlint:all', '-Xlint:-options', '-Werror'  // treat compiler warnings as errors
 		}
-		options.compilerArgs.addAll '-Xlint:all', '-Werror'  // treat compiler warnings as errors
+		else {
+			options.compilerArgs.addAll '-Xlint:all', '-Werror'  // treat compiler warnings as errors
+		}
 	}
 
 	javadoc {
 		options.showFromPublic()  // show only public classes and members
 		options.addBooleanOption 'Xdoclint:-missing', true  // silence warnings because of missing javadoc comments
-		options.links "https://docs.oracle.com/en/java/javase/17/docs/api/", "https://docs.gradle.org/${gradle.gradleVersion}/javadoc/"
+		options.links "https://docs.oracle.com/en/java/javase/25/docs/api/", "https://docs.gradle.org/${gradle.gradleVersion}/javadoc/"
 	}
 }

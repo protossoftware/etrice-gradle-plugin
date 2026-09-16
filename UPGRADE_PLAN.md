@@ -90,34 +90,31 @@ Gradle 8.14.x runs on JVM 8–24 (not 25), so keep CI on JDK 17 or 21 for this p
    `StartParameter.isConfigurationCacheRequested` (removal scheduled for **Gradle 10**, not 9).
    Harmless for the Gradle 9 target; revisit when asciidoctor 5.x is stable.
 
-## Phase 3 — Gradle 8.14.5 → 9.7.1 + JDK 25
+## Phase 3 — Gradle 8.14.5 → 9.7.1 + JDK 25 — DONE
 
 The actual modernization step. Java 25 needs Gradle ≥ 9.1.0, hence 9.7.1.
 
-1. `./gradlew wrapper --gradle-version 9.7.1` (still with JDK 17/21).
-2. Update CI to JDK 25: `.github/workflows/build.yml` and `publish.yml`
-   `actions/setup-java` → `java-version: '25'`.
-3. Build and fix Gradle 9 removals. Audited usages in this repo that are **safe** under 9.x:
-   * `WorkerExecutor.processIsolation` / `WorkQueue` (GenerateTask) — stable.
-   * `SourceTask`, `ConfigurableFileCollection`, `MapProperty`, `NamedDomainObjectContainer`,
-     `TaskProvider` — stable.
-   * `ExecOperations.javaexec` (EtUnitConvertTask), `ArchiveOperations.zipTree` +
-     `FileSystemOperations.sync` (UnzipTask) — stable.
-   * Attribute compatibility/disambiguation rules (`ETriceBasePlugin`) — stable.
-   * `DependencyHandler.create(FileCollection)` for `modelpathDir` — still supported
-     (file collection dependencies; the removed `SelfResolvingDependency` is not referenced).
-   * Risk watch-list: eager `.get()` inside the `EtUnitConvertPlugin` container factory
-     (intentional, keep), `project.files(provider)` wiring, `Zip.setDuplicatesStrategy`.
-4. Documentation build: `org.asciidoctor.jvm.convert` 4.0.5 is Gradle 9 ready (no change).
-   Re-check `asciidoctor { outputDir = layout.buildDirectory.dir(…) }` stays lazy.
-5. `subprojects/build.gradle`:
-   * Keep `options.release = 8` for now (phase 4 decides the long-term baseline).
-   * Update javadoc links from `javase/17` to `javase/25` once building on JDK 25.
-6. Acceptance: `./gradlew build buildSite` green on JDK 25 locally **and** in CI, and
-   TestKit tests (which inherit Gradle 9.7.1) pass with `--warning-mode=fail`.
-7. Optional hardening: add a second CI leg on Gradle 8.14.5 via
-   `GradleRunner.withGradleVersion("8.14.5")` to guard plugin consumers that haven't
-   upgraded yet.
+1. ✅ `./gradlew wrapper --gradle-version 9.7.1`.
+2. ✅ CI updated to JDK 25 (`build.yml`, `publish.yml`); javadoc links updated to Java 25.
+3. Code fixes required by Gradle 9 (audited usages were indeed safe, but validation is stricter):
+   * `Configuration.setVisible(boolean)` is deprecated in Gradle 9 (legacy no-op, removal in 10)
+     → all `setVisible(false)` calls removed. The issue #4 regression guards
+     ("model/source zip must not run on assemble") still pass, confirming visibility is no
+     longer load-bearing. NOTE: verify on Gradle 7.6/8.x consumers via the phase 4 tests.
+   * `validatePlugins` now fails without caching decisions → `@DisableCachingByDefault(because=)`
+     added to `GenerateTask`, `EclipseModelpathTask`, `UnzipTask`, `EtUnitConvertTask`;
+     `@Classpath` on `EtUnitConvertTask.classpath`; `@Classpath` on `GenerateTask.classpath`
+     and `@PathSensitive(NONE)` on `GenerateTask.modelpath`.
+   * javac 25 warns "release 8 is obsolete" → `-Xlint:-options` appended (after `-Xlint:all`)
+     so `-Werror` stays usable while keeping the Java 8 bytecode target.
+   * Implicit parent-project property lookups deprecated in 9 (error in 10) →
+     `scmVersion.version` captured before `allprojects {}` in the root script and the
+     version catalog resolved explicitly via `VersionCatalogsExtension` in `subprojects/build.gradle`.
+4. Remaining known deprecation (third-party, not blocking): asciidoctor 4.0.5 internal
+   `StartParameter.isConfigurationCacheRequested` — removal scheduled for Gradle 10.
+5. ✅ Acceptance: `./gradlew clean build buildSite` green on JDK 25 (Temurin 25.0.4) and on
+   JDK 17; TestKit tests run real Gradle 9.7.1 builds with `--warning-mode=fail`.
+6. Optional hardening (phase 4): compatibility legs on Gradle 7.6/8.x.
 
 ## Phase 4 — Decide the plugin baseline (semver decision)
 

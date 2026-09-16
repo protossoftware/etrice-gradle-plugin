@@ -13,11 +13,15 @@ import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 import org.gradle.api.tasks.options.Option;
 import org.gradle.workers.WorkQueue;
 import org.gradle.workers.WorkerExecutor;
@@ -25,6 +29,7 @@ import org.gradle.workers.WorkerExecutor;
 /**
  * Base task class for generator execution.
  */
+@DisableCachingByDefault(because = "Generator execution is an external process with unvalidated caching semantics")
 public abstract class GenerateTask extends SourceTask {
 	
 	public static final String OPTION_GENDIR = "genDir";
@@ -63,6 +68,7 @@ public abstract class GenerateTask extends SourceTask {
 	 * @return all files of the generator classpath
 	 */
 	@InputFiles
+	@Classpath
 	public ConfigurableFileCollection getClasspath() {
 		return classpath;
 	}
@@ -95,6 +101,7 @@ public abstract class GenerateTask extends SourceTask {
 	 * @return the modelpath for the generator
 	 */
 	@InputFiles
+	@PathSensitive(PathSensitivity.NONE)
 	public ConfigurableFileCollection getModelpath() {
 		return modelpath;
 	}
