@@ -12,13 +12,15 @@ plugin markers (`de.protos.etrice-base`, `de.protos.etrice-c`, `de.protos.etrice
 
 ## Environment constraints
 
-- The build currently uses **Gradle 7.6** (see `gradle/wrapper/gradle-wrapper.properties`).
-  It **does not run on JDK 20+** (fails with "Unsupported class file major version").
-  Use **JDK 17** (CI baseline) or another JDK 8–19. On machines with newer default JDKs,
-  point `JAVA_HOME` at a JDK 17 installation.
+- The build uses **Gradle 9.7.1** (see `gradle/wrapper/gradle-wrapper.properties`) and runs
+  on **JDK 17–26** (the CI uses Temurin 25).
 - The plugins themselves compile with `options.release = 8` (minimum JVM of supported Gradle
-  versions) and must stay free of APIs newer than the supported Gradle baseline unless the
-  baseline is deliberately raised (see UPGRADE_PLAN.md).
+  versions; javac emits obsolete-option warnings for release 8 on recent JDKs, suppressed via
+  `-Xlint:-options`). They must stay free of APIs newer than Gradle 7.6 — the *minimum*
+  supported consumer version — except where guarded at runtime (see `GradleCompat`).
+- Compatibility with the minimum supported Gradle (7.6) and Gradle 8.14 is verified by
+  functional tests using TestKit `withGradleVersion`. These tests cannot run on JDK 20+
+  (old Gradle cannot start there), so they self-skip; the CI `compat` job (JDK 17) executes them.
 
 ## Common commands
 
@@ -43,16 +45,20 @@ expect the first `test` run to take a few minutes.
 ## Code conventions
 
 - Java sources live in `subprojects/de.protos.etrice.gradle/src/main/java/de/protos/etrice/gradle/`.
-  Tests are Groovy (`src/test/groovy`) using JUnit 5 + Gradle TestKit.
+  Tests are Groovy (`src/test/groovy`) using JUnit 6 + Gradle TestKit.
 - **Indentation: tabs** (also in Gradle build files). Match the existing style.
 - Every public class and member has Javadoc (javadoc lint only has `missing` disabled).
 - Gradle API usage follows lazy/immutable patterns: `NamedDomainObjectProvider`,
   `TaskProvider`, provider-based wiring; avoid eager task realization
   (note: `EtUnitConvertPlugin` intentionally realizes tasks inside the container factory).
-- Configurations created by plugins must set `canBeConsumed`/`canBeResolved`/`visible`
-  explicitly and stay `visible(false)` unless consumed by users.
+- Configurations created by plugins must set `canBeConsumed`/`canBeResolved` explicitly.
+  Do not call `Configuration.setVisible` directly — use `GradleCompat.setInvisible`, which
+  guards the deprecated property (no-op since Gradle 9) and keeps issue #4 fixed on
+  Gradle 7/8 consumers.
 - Dependency versions belong in `gradle/libs.versions.toml` (version catalog) or in
-  `settings.gradle` `pluginManagement` for build plugins.
+  `settings.gradle` `pluginManagement` for build plugins. Access the catalog explicitly via
+  `VersionCatalogsExtension` in scripts that are not the root project (implicit parent
+  lookups are deprecated).
 - The eTrice version used in tests, docs and the etunit converter default dependency must
   be kept consistent (`FunctionalTests.groovy`, `doc/build.gradle` attribute
   `version-etrice`, `EtUnitConvertPlugin.ETUNIT_CONVERTER_DEFAULT_DEPENDENCY`).
@@ -68,11 +74,13 @@ expect the first `test` run to take a few minutes.
   Guice module by symbolic name, e.g. `etrice-c`, and runs `GeneratorApplication`).
   Environment variables are forwarded to the worker; `--add-opens java.base/java.lang=ALL-UNNAMED`
   keeps old eTrice/Xtext versions working on Java 9+. Preserve all of this.
+- `GradleCompat.setInvisible` — version-guarded wrapper around the deprecated
+  `Configuration.setVisible(false)`; required on Gradle < 9 to keep model/source zips off
+  `assemble` (issue #4), no-op since Gradle 9. Guarded by functional tests on 7.6/8.14
+  and by the assemble regression tests on the current Gradle version.
 - `ModelLibraryPlugin` / `SourceLibraryPlugin` / `SourcePublishPlugin` — download/extract/
   publish zip artifacts via configurations and `UnzipTask`; `AdhocComponentPlugin` provides
   the `adhoc` software component used for publishing.
-- Configuration `modelpathZip` is intentionally `visible(false)` to avoid attaching `zipModel`
-  to `assemble` (regression guarded by tests, see issue #4). Don't "simplify" this away.
 
 ## Release process
 
@@ -84,5 +92,7 @@ expect the first `test` run to take a few minutes.
 
 ## Planned upgrades
 
-See [UPGRADE_PLAN.md](UPGRADE_PLAN.md) for the coordinated upgrade to Gradle 9 / JDK 25 and
-current dependency versions. Keep that file updated as steps are completed.
+The coordinated upgrade to Gradle 9.7.1 / JDK 25 (phases 0–5) is **complete** — see
+[UPGRADE_PLAN.md](UPGRADE_PLAN.md) for details and remaining watch items
+(e.g. the third-party asciidoctor deprecation to resolve before Gradle 10). Keep that file
+updated as steps are completed.

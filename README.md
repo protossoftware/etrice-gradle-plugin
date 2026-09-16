@@ -71,8 +71,8 @@ repositories {
 }
 
 dependencies {
-    generator "org.eclipse.etrice:org.eclipse.etrice.generator.c:5.4.0"
-    modelLibrary "org.eclipse.etrice:org.eclipse.etrice.modellib.c:5.4.0"
+    generator "org.eclipse.etrice:org.eclipse.etrice.generator.c:5.9.0"
+    modelLibrary "org.eclipse.etrice:org.eclipse.etrice.modellib.c:5.9.0"
 }
 
 modelSet {
@@ -88,11 +88,13 @@ Run the code generation with `./gradlew generateRoom` (or a full `./gradlew buil
 ## Requirements
 
 * **Users of the plugins:** Gradle 7.6 or newer. The plugins are compiled for Java 8 and run
-  on any JDK supported by your Gradle version (Java 8 – 19 with Gradle 7.6).
+  on any JDK supported by your Gradle version (Java 8 – 19 with Gradle 7.6,
+  Java 17 – 26 with Gradle 9).
   Generators are executed in worker processes; older eTrice versions (Xtext 2.25 based)
   are made to run on Java 17+ automatically via `--add-opens`.
-* **Building this repository:** JDK 8–19 (the CI uses Temurin 17). Newer JDKs require a
-  Gradle upgrade first — see [UPGRADE_PLAN.md](UPGRADE_PLAN.md).
+* **Building this repository:** JDK 17 – 26 (the CI uses Temurin 25 and additionally runs a
+  compatibility build on JDK 17 for the minimum supported Gradle version).
+  See [UPGRADE_PLAN.md](UPGRADE_PLAN.md) for the current toolchain state.
 * eTrice generator artifacts are resolved from the
   [eTrice repositories at Eclipse](https://repo.eclipse.org/content/repositories/etrice/).
 

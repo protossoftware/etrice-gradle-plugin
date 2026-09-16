@@ -1,9 +1,8 @@
 # Upgrade Plan — Gradle 9 / JDK 25 and dependency refresh
 
-Status: **in progress** — phases 0–1 complete, see the checkboxes below.
-Work through the phases in order; each phase leaves the build green
-(`./gradlew build buildSite`) and can ship independently.
-Update this file as steps are completed.
+Status: **implementation complete** (phases 0–5 done, verified locally on Gradle 9.7.1 with
+JDK 25 and JDK 17; release intentionally not executed). See the phase sections below for what
+changed and the risk register for verified findings.
 
 ## Current state (September 2026)
 
@@ -133,40 +132,38 @@ The actual modernization step. Java 25 needs Gradle ≥ 9.1.0, hence 9.7.1.
   (basic build + issue #4 assemble guards); they self-skip on JDKs that cannot run old
   Gradle (e.g. JDK 25). The new `compat` CI job (JDK 17) keeps them running.
 
-## Phase 5 — Library refresh
+## Phase 5 — Library refresh — DONE
 
-1. **eTrice 5.4.0 → 5.9.0** in all three places (keep consistent, see AGENTS.md):
+1. ✅ **eTrice 5.4.0 → 5.9.0** in all three places (kept consistent, see AGENTS.md):
    * `FunctionalTests.groovy` `etriceVersion`
    * `doc/build.gradle` attribute `version-etrice`
    * `EtUnitConvertPlugin.ETUNIT_CONVERTER_DEFAULT_DEPENDENCY`
-   * Leave the `compileOnly` `org.eclipse.etrice.generator.base:3.0.0` untouched
+   * The `compileOnly` `org.eclipse.etrice.generator.base:3.0.0` stays untouched
      (documented minimum supported eTrice version).
-2. **JUnit 5.14.4 → 6.1.3** (optional, separate PR): JUnit 6 requires Java 17+ at test
-   runtime — fine once CI is on JDK 25. The test code only uses `@Test` and JUnit 5-style
-   assertions, so the migration is small; run the full suite to confirm.
-3. Re-render and publish docs (`buildSite`) so the version attributes in the examples update.
+2. ✅ **JUnit 5.14.4 → 6.1.3**: JUnit 6 requires Java 17+ at test runtime — satisfied by the
+   Gradle 9.7.1 build (JVM 17–26). Full suite passes on JDK 25.
+3. ✅ Docs re-rendered (`buildSite`) with the new version attributes.
 
-## Phase 6 — Release
+## Phase 6 — Release — PENDING (deliberately not executed; releases run from `master` tags)
 
-1. Publish the upgraded build as a new release. If phase 4 chose option B, tag `release-3.0.0`;
-   otherwise `release-2.5.0` (axion-release derives the number, `./gradlew
-   release -prereleaseBase` workflows may apply — follow the existing tag process:
+1. Merge this branch, then publish as a new release. Option A was chosen, so tag
+   `release-2.5.0` (follow the existing process:
    `git tag release-X.Y.Z && git push origin release-X.Y.Z`).
 2. After publishing, verify the plugin portal page renders the new version and the docs site
-   is updated. Confirm `GRADLE_PUBLISH_KEY`/`GRADLE_PUBLISH_SECRET` secrets still work —
-   plugin-publish 2.x changed key handling (`GRADLE_PUBLISH_KEY`/`SECRET` env vars or the
-   `login` task).
+   is updated. plugin-publish 2.2.1 uses `GRADLE_PUBLISH_KEY`/`GRADLE_PUBLISH_SECRET`
+   (env vars) — the publish workflow already passes them as project properties, which 2.x
+   still supports.
 
 ## Risk register
 
 | Risk | Likelihood | Mitigation |
 | --- | --- | --- |
-| Hidden Gradle 9 removals surface only at test time | Medium | TestKit functional tests run real builds with `--warning-mode=fail`; run twice, once with `--rerun-tasks` |
-| axion-release version derivation changes behavior | Low | 1.21.x tested on Gradle 9; verify `./gradlew currentVersion` before tagging |
-| plugin-publish 2.x rejects upload (missing compatibility declaration) | Medium | Add `compatibility { features { … } }` in phase 1; do one real release before the Gradle jump |
-| Consumers stuck on Gradle 7/8 | High impact | Phase 4 option A keeps them supported; document the matrix in README |
-| eTrice 5.9.0 generator behavior differs from 5.4.0 | Low | Functional tests generate real code and assert outputs; bump with tests, not blindly |
-| GitHub Actions v7 checkout / v4 gh-pages behavior changes | Low | Both workflows are simple; verify one publish run |
+| Hidden Gradle 9 removals surface only at test time | ~~Medium~~ resolved | TestKit functional tests run real Gradle 9.7.1 builds with `--warning-mode=fail`; found and fixed `setVisible`, validatePlugins strictness and implicit property lookups |
+| Configuration visibility removal regresses issue #4 on Gradle 7/8 | High → mitigated | `GradleCompat.setInvisible` guards the property by version; verified by functional tests on 7.6.6/8.14.5 and the assemble guards on 9.7.1 |
+| axion-release version derivation changes behavior | Low | 1.21.3 verified locally (`currentVersion` derives `2.4.1-gunzinger-dep-upgrades-SNAPSHOT`); verify before tagging |
+| plugin-publish 2.x rejects upload (missing compatibility declaration) | Low | `compatibility { features { configurationCache = false } }` added for all plugins; flip to `true` only after CC verification |
+| eTrice 5.9.0 generator behavior differs from 5.4.0 | Low | Functional tests generate real 5.9.0 code on JDK 25 and assert outputs — passing |
+| GitHub Actions v7 checkout / v4 gh-pages behavior changes | Low | Both workflows are simple; verify one publish run at release time |
 
 ## Quick reference — files touched per phase
 
