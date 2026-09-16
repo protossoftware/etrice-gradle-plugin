@@ -76,22 +76,19 @@ Notes:
   only for the real run). Then do a real `release-X.Y.Z` to prove the pipeline before the
   Gradle upgrade.
 
-## Phase 2 — Gradle 7.6 → 8.14.5 (deprecation buffer)
+## Phase 2 — Gradle 7.6 → 8.14.5 (deprecation buffer) — DONE
 
 Purpose: flush out deprecations on a major-but-compatible line before the 9.x jump.
 Gradle 8.14.x runs on JVM 8–24 (not 25), so keep CI on JDK 17 or 21 for this phase.
 
-1. With JDK 17: `./gradlew wrapper --gradle-version 8.14.5`
-   (also refreshes `gradle/wrapper/gradle-wrapper.jar`/`gradlew` scripts — commit them).
-2. `./gradlew build buildSite --warning-mode=fail` and fix every deprecation. Expected
-   candidates in this codebase (from the 7.6 → 8.x deprecation lists):
-   * `doc/build.gradle`: bare `task unzipJavadoc { … }` syntax and `project.sync`/`zipTree`
-     inside `doLast` — migrate to `tasks.register` and consider `providers`/`archiveOperations`.
-   * `subprojects/build.gradle`: `options.compilerArgs.addAll` and `javadoc` config are fine;
-     check `JavaVersion.current()` guards.
-3. Functional tests already run TestKit builds with `--warning-mode=fail`, so the generated
-   test projects double as a deprecation harness.
-4. Run the full test suite (`./gradlew test`) — it downloads real eTrice 5.4.0 generators.
+1. ✅ `./gradlew wrapper --gradle-version 8.14.5` (wrapper jar/scripts refreshed and committed).
+2. ✅ `doc/build.gradle` modernized preemptively: `task` keyword → `tasks.register`,
+   `project.sync`/`zipTree` → injected `FileSystemOperations`/`ArchiveOperations`
+   (all removed in Gradle 9, deprecated in 8.x).
+3. ✅ Build + functional tests pass on Gradle 8.14.5 / JDK 17 (`build buildSite`).
+4. Known third-party issue: the asciidoctor plugin 4.0.5 internally calls the deprecated
+   `StartParameter.isConfigurationCacheRequested` (removal scheduled for **Gradle 10**, not 9).
+   Harmless for the Gradle 9 target; revisit when asciidoctor 5.x is stable.
 
 ## Phase 3 — Gradle 8.14.5 → 9.7.1 + JDK 25
 
