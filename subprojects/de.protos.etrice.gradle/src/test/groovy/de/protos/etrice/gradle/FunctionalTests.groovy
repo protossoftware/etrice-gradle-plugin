@@ -7,7 +7,7 @@ import org.gradle.testkit.runner.TaskOutcome
 
 public class FunctionalTests {
 
-def etriceVersion = "5.4.0"
+def etriceVersion = "5.9.0"
 def repositories = """\
 repositories {
 	maven {
