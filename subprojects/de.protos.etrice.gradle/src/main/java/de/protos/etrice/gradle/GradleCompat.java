@@ -8,7 +8,7 @@ import org.gradle.util.GradleVersion;
  */
 final class GradleCompat {
 
-	private static final GradleVersion VISIBILITY_REMOVAL_VERSION = GradleVersion.version("9.0");
+	private static final GradleVersion VISIBILITY_DEPRECATION_VERSION = GradleVersion.version("9.0");
 
 	private GradleCompat() {}
 
@@ -16,12 +16,12 @@ final class GradleCompat {
 	 * Marks a configuration as invisible to prevent auto attachment of its artifacts to the
 	 * archives configuration, see https://github.com/protossoftware/etrice-gradle-plugin/issues/4.
 	 * The visibility property is deprecated and without effect since Gradle 9, where artifacts
-	 * of configurations are not attached to archives anymore.
+	 * of configurations are not attached to archives anymore, see https://docs.gradle.org/current/userguide/upgrading_major_version_9.html#gradle_no_longer_implicitly_builds_certain_artifacts_during_assemble.
 	 *
 	 * @param configuration the configuration to mark as invisible
 	 */
 	static void setInvisible(Configuration configuration) {
-		if(GradleVersion.current().compareTo(VISIBILITY_REMOVAL_VERSION) < 0) {
+		if(GradleVersion.current().compareTo(VISIBILITY_DEPRECATION_VERSION) < 0) {
 			hide(configuration);
 		}
 	}
