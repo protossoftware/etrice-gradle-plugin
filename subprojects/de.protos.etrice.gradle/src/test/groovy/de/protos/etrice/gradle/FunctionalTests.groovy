@@ -1,12 +1,20 @@
 package de.protos.etrice.gradle
 
 import org.gradle.api.JavaVersion
-import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.Parameter
+import org.junit.jupiter.params.ParameterizedClass
 import org.junit.jupiter.params.provider.NullSource
 import org.junit.jupiter.params.provider.ValueSource
 import org.gradle.testkit.runner.TaskOutcome
 
+@ParameterizedClass
+@NullSource // gradleVersion = null uses current Gradle version running this test
+@ValueSource(strings = ["7.6.6", "8.14.3"])
 public class FunctionalTests {
+
+@Parameter
+def gradleVersion
 
 def etriceVersion = "5.9.0"
 def repositories = """\
@@ -19,10 +27,8 @@ repositories {
 	}
 }"""
 
-@ParameterizedTest
-@NullSource
-@ValueSource(strings = ["7.6.6", "8.14.5"])
-void "build empty eTrice project"(String gradleVersion) {
+@Test
+void "build empty eTrice project"() {
 def buildFile = """\
 plugins {
 	id 'de.protos.etrice-base'
@@ -37,10 +43,8 @@ GradleProjectBuilder.build("etriceEmptyProjectTest") {
 	}
 }}
 
-@ParameterizedTest
-@NullSource
-@ValueSource(strings = ["7.6.6", "8.14.5"])
-void "generate basic eTrice C project with modellib from model library plugin"(String gradleVersion) {
+@Test
+void "generate basic eTrice C project with modellib from model library plugin"() {
 def buildFile = """\
 plugins {
 	id 'de.protos.etrice-c'
@@ -72,10 +76,8 @@ GradleProjectBuilder.build("etriceCTest") {
 	}
 }}
 
-@ParameterizedTest
-@NullSource
-@ValueSource(strings = ["7.6.6", "8.14.5"])
-void "build basic eTrice Java project with modellib from repository"(String gradleVersion) {
+@Test
+void "build basic eTrice Java project with modellib from repository"() {
 def buildFile = """\
 plugins {
 	id 'java-library'
@@ -108,10 +110,8 @@ GradleProjectBuilder.build("etriceJavaTest") {
 	}
 }}
 
-@ParameterizedTest
-@NullSource
-@ValueSource(strings = ["7.6.6", "8.14.5"])
-void "generate multi project eTrice C project"(String gradleVersion) {
+@Test
+void "generate multi project eTrice C project"() {
 def rootBuildFile = """\
 plugins {
 	id 'de.protos.etrice-c' apply false
@@ -166,10 +166,8 @@ GradleProjectBuilder.build("etriceMultiProjectTest") {
 	}
 }}
 
-@ParameterizedTest
-@NullSource
-@ValueSource(strings = ["7.6.6", "8.14.5"])
-void "zip and unzip source"(String gradleVersion) {
+@Test
+void "zip and unzip source"() {
 def libBuildFile = """\
 plugins {
     id 'de.protos.source-publish'
@@ -199,10 +197,8 @@ GradleProjectBuilder.build("etriceSourceZipUnzipTest") {
 	}
 }}
 
-@ParameterizedTest
-@NullSource
-@ValueSource(strings = ["7.6.6", "8.14.5"])
-void "convert etunit files"(String gradleVersion) {
+@Test
+void "convert etunit files"() {
 def buildFile = """\
 plugins {
 	id 'de.protos.etunit-convert'
@@ -235,10 +231,8 @@ GradleProjectBuilder.build("etunitConvertTest") {
 	}
 }}
 
-@ParameterizedTest
-@NullSource
-@ValueSource(strings = ["7.6.6", "8.14.5"])
-void "snapshot minimal C generation"(String gradleVersion) {
+@Test
+void "snapshot minimal C generation"() {
 def buildFile = """\
 plugins {
 	id 'de.protos.etrice-c'
@@ -273,10 +267,8 @@ GradleProjectBuilder.build("etriceCSnapshotTest") {
 }
 }
 
-@ParameterizedTest
-@NullSource
-@ValueSource(strings = ["7.6.6", "8.14.5"])
-void "model zip is not run on regular assemble (regression guard for #4)"(String gradleVersion) {
+@Test
+void "model zip is not run on regular assemble (regression guard for #4)"() {
 def buildFile = """\
 plugins {
 	id 'de.protos.etrice-base'
@@ -290,10 +282,8 @@ GradleProjectBuilder.build("etriceArchivesModelGuardTest") {
 	}
 }}
 
-@ParameterizedTest
-@NullSource
-@ValueSource(strings = ["7.6.6", "8.14.5"])
-void "source zip is not run on regular assemble (regression guard for #4)"(String gradleVersion) {
+@Test
+void "source zip is not run on regular assemble (regression guard for #4)"() {
 // Ensure that the source-publish plugin also does not attach to archives
 // even when a source zip task is present
 
