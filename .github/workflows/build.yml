@@ -13,23 +13,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v7
-    - name: Set up JDK 25
-      uses: actions/setup-java@v6
-      with:
-        distribution: temurin
-        java-version: '25'
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    - name: Build with Gradle
-      run: ./gradlew build buildSite
-
-  compat:
-    # The minimum supported Gradle version of the plugins cannot run on recent JDKs,
-    # so the compatibility tests are executed on an older JDK
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v7
     - name: Set up JDK 17
       uses: actions/setup-java@v6
       with:
@@ -38,4 +21,4 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew build buildSite

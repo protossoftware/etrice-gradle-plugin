@@ -1,8 +1,15 @@
-# Upgrade Plan — Gradle 9 / JDK 25 and dependency refresh
+# Upgrade Plan — Gradle 9 / JDK and dependency refresh
 
 Status: **implementation complete** (phases 0–5 done, verified locally on Gradle 9.7.1 with
-JDK 25 and JDK 17; release intentionally not executed). See the phase sections below for what
+JDK 17; release intentionally not executed). Amended after review: the build is standardized
+on **JDK 17** (not 25) and every functional test now runs against the current Gradle version
+*and* the minimum supported versions 7.6.6 and 8.14.5. See the phase sections below for what
 changed and the risk register for verified findings.
+
+## Target state (amended)
+
+* Gradle **9.7.1** wrapper, built on **Temurin JDK 17** in CI and locally.
+* Test suite executes on the building Gradle version plus 7.6.6 and 8.14.5 via TestKit.
 
 ## Current state (September 2026)
 
@@ -29,12 +36,14 @@ Compatibility research (official sources, checked 2026-09):
 * axion-release 1.21.3 release notes: CI matrix covers Gradle 7.x/8.x/9.x and JDK 17/21/25.
 * asciidoctor-gradle 4.0.5 (Aug 2025): "Avoid SelfResolvingDependency" — prerequisite for Gradle 9.
 
-## Target state
+## Target state (amended)
 
-* Gradle **9.7.1** wrapper, built on **Temurin JDK 25** in CI and locally.
+* Gradle **9.7.1** wrapper, built on **Temurin JDK 17** in CI and locally.
 * All build plugins and test dependencies on their current latest stable versions.
 * eTrice examples/tests/docs on **5.9.0**; `compileOnly` minimum remains **3.0.0**.
-* Plugin consumers: decide the documented minimum Gradle version (phase 5 decision).
+* Plugin consumers: minimum Gradle version stays 7.6 (phase 4, option A).
+* The entire functional test suite runs against the building Gradle version *and* against
+  7.6.6 and 8.14.5 via TestKit parameterization.
 
 ## Phase 0 — Safety net (no functional change) — DONE
 
@@ -89,12 +98,13 @@ Gradle 8.14.x runs on JVM 8–24 (not 25), so keep CI on JDK 17 or 21 for this p
    `StartParameter.isConfigurationCacheRequested` (removal scheduled for **Gradle 10**, not 9).
    Harmless for the Gradle 9 target; revisit when asciidoctor 5.x is stable.
 
-## Phase 3 — Gradle 8.14.5 → 9.7.1 + JDK 25 — DONE
+## Phase 3 — Gradle 8.14.5 → 9.7.1 + JDK — DONE
 
 The actual modernization step. Java 25 needs Gradle ≥ 9.1.0, hence 9.7.1.
 
 1. ✅ `./gradlew wrapper --gradle-version 9.7.1`.
-2. ✅ CI updated to JDK 25 (`build.yml`, `publish.yml`); javadoc links updated to Java 25.
+2. ✅ CI updated to JDK 17 (`build.yml`, `publish.yml`; amended after review — was 25);
+   javadoc links point to the Java 17 API docs.
 3. Code fixes required by Gradle 9 (audited usages were indeed safe, but validation is stricter):
    * `Configuration.setVisible(boolean)` is deprecated in Gradle 9 (legacy no-op, removal in 10)
      → all `setVisible(false)` calls removed. The issue #4 regression guards
@@ -103,7 +113,8 @@ The actual modernization step. Java 25 needs Gradle ≥ 9.1.0, hence 9.7.1.
    * `validatePlugins` now fails without caching decisions → `@DisableCachingByDefault(because=)`
      added to `GenerateTask`, `EclipseModelpathTask`, `UnzipTask`, `EtUnitConvertTask`;
      `@Classpath` on `EtUnitConvertTask.classpath`; `@Classpath` on `GenerateTask.classpath`
-     and `@PathSensitive(NONE)` on `GenerateTask.modelpath`.
+     and `@PathSensitive(RELATIVE)` on `GenerateTask.modelpath` (relocatable input; amended
+     after review — was `NONE`).
    * javac 25 warns "release 8 is obsolete" → `-Xlint:-options` appended (after `-Xlint:all`)
      so `-Werror` stays usable while keeping the Java 8 bytecode target.
    * Implicit parent-project property lookups deprecated in 9 (error in 10) →
@@ -111,8 +122,9 @@ The actual modernization step. Java 25 needs Gradle ≥ 9.1.0, hence 9.7.1.
      version catalog resolved explicitly via `VersionCatalogsExtension` in `subprojects/build.gradle`.
 4. Remaining known deprecation (third-party, not blocking): asciidoctor 4.0.5 internal
    `StartParameter.isConfigurationCacheRequested` — removal scheduled for Gradle 10.
-5. ✅ Acceptance: `./gradlew clean build buildSite` green on JDK 25 (Temurin 25.0.4) and on
-   JDK 17; TestKit tests run real Gradle 9.7.1 builds with `--warning-mode=fail`.
+5. ✅ Acceptance: `./gradlew clean build buildSite` green on JDK 17 (Temurin, the standard
+   build JDK; verified on JDK 25 during evaluation) and TestKit tests run real Gradle 9.7.1
+   builds with `--warning-mode=fail`.
 6. Optional hardening (phase 4): compatibility legs on Gradle 7.6/8.x.
 
 ## Phase 4 — Decide the plugin baseline (semver decision) — DONE (Option A)
@@ -128,9 +140,11 @@ The actual modernization step. Java 25 needs Gradle ≥ 9.1.0, hence 9.7.1.
   re-attaches to `assemble`, the issue #4 regression). Restored via `GradleCompat.setInvisible`,
   which only calls the deprecated property on Gradle < 9 (where it works and is not
   deprecated). On Gradle 9+ it is a no-op and must not be called.
-* New functional tests guard the minimum supported Gradle versions 7.6.6 and 8.14.5
-  (basic build + issue #4 assemble guards); they self-skip on JDKs that cannot run old
-  Gradle (e.g. JDK 25). The new `compat` CI job (JDK 17) keeps them running.
+* The whole functional test suite is parameterized over the Gradle versions
+  `[current, 7.6.6, 8.14.5]` (TestKit `withGradleVersion`), superseding the initially added
+  dedicated compatibility tests (amended after review). Invocations for Gradle versions that
+  cannot run on the current JDK (Gradle 7 needs ≤ Java 19, Gradle 8 ≤ Java 24) self-skip —
+  the reason the build is standardized on JDK 17.
 
 ## Phase 5 — Library refresh — DONE
 
@@ -141,7 +155,7 @@ The actual modernization step. Java 25 needs Gradle ≥ 9.1.0, hence 9.7.1.
    * The `compileOnly` `org.eclipse.etrice.generator.base:3.0.0` stays untouched
      (documented minimum supported eTrice version).
 2. ✅ **JUnit 5.14.4 → 6.1.3**: JUnit 6 requires Java 17+ at test runtime — satisfied by the
-   Gradle 9.7.1 build (JVM 17–26). Full suite passes on JDK 25.
+   Gradle 9.7.1 build (JVM 17–26). Full suite passes on JDK 17.
 3. ✅ Docs re-rendered (`buildSite`) with the new version attributes.
 
 ## Phase 6 — Release — PENDING (deliberately not executed; releases run from `master` tags)
@@ -162,7 +176,7 @@ The actual modernization step. Java 25 needs Gradle ≥ 9.1.0, hence 9.7.1.
 | Configuration visibility removal regresses issue #4 on Gradle 7/8 | High → mitigated | `GradleCompat.setInvisible` guards the property by version; verified by functional tests on 7.6.6/8.14.5 and the assemble guards on 9.7.1 |
 | axion-release version derivation changes behavior | Low | 1.21.3 verified locally (`currentVersion` derives `2.4.1-gunzinger-dep-upgrades-SNAPSHOT`); verify before tagging |
 | plugin-publish 2.x rejects upload (missing compatibility declaration) | Low | `compatibility { features { configurationCache = false } }` added for all plugins; flip to `true` only after CC verification |
-| eTrice 5.9.0 generator behavior differs from 5.4.0 | Low | Functional tests generate real 5.9.0 code on JDK 25 and assert outputs — passing |
+| eTrice 5.9.0 generator behavior differs from 5.4.0 | Low | Functional tests generate real 5.9.0 code on JDK 17 and assert outputs — passing |
 | GitHub Actions v7 checkout / v4 gh-pages behavior changes | Low | Both workflows are simple; verify one publish run at release time |
 
 ## Quick reference — files touched per phase
@@ -170,7 +184,7 @@ The actual modernization step. Java 25 needs Gradle ≥ 9.1.0, hence 9.7.1.
 * Phase 1: `settings.gradle`, `gradle/libs.versions.toml`, `.github/workflows/*.yml`,
   `subprojects/de.protos.etrice.gradle/build.gradle` (compatibility block)
 * Phase 2/3: `gradle/wrapper/gradle-wrapper.properties` (+ wrapper jar/scripts),
-  `.github/workflows/*.yml` (JDK 25), possibly `doc/build.gradle`, `subprojects/build.gradle`
+  `.github/workflows/*.yml` (JDK version), possibly `doc/build.gradle`, `subprojects/build.gradle`
 * Phase 4: `doc/build.gradle` (`version-gradle`), `subprojects/build.gradle` (`options.release`),
   `doc/src/docs/asciidoc/index.adoc` (requirements wording)
 * Phase 5: `FunctionalTests.groovy`, `doc/build.gradle`, `EtUnitConvertPlugin.java`,

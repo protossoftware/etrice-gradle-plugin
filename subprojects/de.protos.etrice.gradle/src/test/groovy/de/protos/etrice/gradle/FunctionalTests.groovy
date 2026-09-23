@@ -2,10 +2,18 @@ package de.protos.etrice.gradle
 
 import org.gradle.api.JavaVersion
 import org.junit.jupiter.api.Assumptions
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.NullSource
+import org.junit.jupiter.params.provider.ValueSource
 import org.gradle.testkit.runner.TaskOutcome
 
 public class FunctionalTests {
+
+/** Gradle versions below this can only run on JDKs up to the listed maximum */
+private static final Map<String, JavaVersion> MAX_JDK_FOR_GRADLE_MAJOR = [
+	"7": JavaVersion.VERSION_19,
+	"8": JavaVersion.VERSION_24
+]
 
 def etriceVersion = "5.9.0"
 def repositories = """\
@@ -19,15 +27,24 @@ repositories {
 }"""
 
 /**
- * Skips compatibility tests for Gradle versions that cannot run on the current JDK.
- * The tested Gradle versions run in the test JVM, Gradle 7.6 supports at most Java 19.
+ * Skips the test invocation for Gradle versions that cannot run on the current JDK,
+ * e.g. Gradle 7 cannot start on JDK 20 or later.
+ *
+ * @param gradleVersion the Gradle version of the test invocation, or null for the current version
  */
-private static void assumeLegacyGradleCompatibleJdk() {
-	Assumptions.assumeTrue(JavaVersion.current() <= JavaVersion.VERSION_19)
+private static void assumeGradleRunsOnCurrentJdk(String gradleVersion) {
+	if(gradleVersion != null) {
+		def major = gradleVersion.split("\\.")[0]
+		def maxJdk = MAX_JDK_FOR_GRADLE_MAJOR[major]
+		Assumptions.assumeTrue(maxJdk == null || JavaVersion.current() <= maxJdk)
+	}
 }
 
-@Test
-void "build empty eTrice project"() {
+@ParameterizedTest
+@NullSource
+@ValueSource(strings = ["7.6.6", "8.14.5"])
+void "build empty eTrice project"(String gradleVersion) {
+assumeGradleRunsOnCurrentJdk(gradleVersion)
 def buildFile = """\
 plugins {
 	id 'de.protos.etrice-base'
@@ -37,13 +54,16 @@ modelSet {
 }"""
 GradleProjectBuilder.build("etriceEmptyProjectTest") {
 	write("build.gradle", buildFile)
-	gradle("generate") {
+	gradle("generate", gradleVersion) {
 		assert task(":generateTest")?.outcome == TaskOutcome.NO_SOURCE
 	}
 }}
 
-@Test
-void "generate basic eTrice C project with modellib from model library plugin"() {
+@ParameterizedTest
+@NullSource
+@ValueSource(strings = ["7.6.6", "8.14.5"])
+void "generate basic eTrice C project with modellib from model library plugin"(String gradleVersion) {
+assumeGradleRunsOnCurrentJdk(gradleVersion)
 def buildFile = """\
 plugins {
 	id 'de.protos.etrice-c'
@@ -69,14 +89,17 @@ RoomModel test {
 GradleProjectBuilder.build("etriceCTest") {
 	write("build.gradle", buildFile)
 	write("model/test.room", roomFile)
-	gradle("build") {
+	gradle("build", gradleVersion) {
 		assert task(":generateRoom")?.outcome == TaskOutcome.SUCCESS
 		assert exists("build/src-gen/room/test/ATest.c")
 	}
 }}
 
-@Test
-void "build basic eTrice Java project with modellib from repository"() {
+@ParameterizedTest
+@NullSource
+@ValueSource(strings = ["7.6.6", "8.14.5"])
+void "build basic eTrice Java project with modellib from repository"(String gradleVersion) {
+assumeGradleRunsOnCurrentJdk(gradleVersion)
 def buildFile = """\
 plugins {
 	id 'java-library'
@@ -102,15 +125,18 @@ RoomModel test {
 GradleProjectBuilder.build("etriceJavaTest") {
 	write("build.gradle", buildFile)
 	write("model/test.room", roomFile)
-	gradle("build") {
+	gradle("build", gradleVersion) {
 		assert task(":generateRoom")?.outcome == TaskOutcome.SUCCESS
 		assert task(":compileJava")?.outcome == TaskOutcome.SUCCESS
 		assert exists("build/src-gen/room/test/ATest.java")
 	}
 }}
 
-@Test
-void "generate multi project eTrice C project"() {
+@ParameterizedTest
+@NullSource
+@ValueSource(strings = ["7.6.6", "8.14.5"])
+void "generate multi project eTrice C project"(String gradleVersion) {
+assumeGradleRunsOnCurrentJdk(gradleVersion)
 def rootBuildFile = """\
 plugins {
 	id 'de.protos.etrice-c' apply false
@@ -157,7 +183,7 @@ GradleProjectBuilder.build("etriceMultiProjectTest") {
 	write("lib/model/lib.room", libRoomFile)
 	write("app/build.gradle", appBuildFile)
 	write("app/model/app.room", appRoomFile)
-	gradle("build") {
+	gradle("build", gradleVersion) {
 		assert task(":lib:generateRoom")?.outcome == TaskOutcome.SUCCESS
 		assert task(":app:generateRoom")?.outcome == TaskOutcome.SUCCESS
 		assert exists("lib/build/src-gen/room/lib/ALib.c")
@@ -165,8 +191,11 @@ GradleProjectBuilder.build("etriceMultiProjectTest") {
 	}
 }}
 
-@Test
-void "zip and unzip source"() {
+@ParameterizedTest
+@NullSource
+@ValueSource(strings = ["7.6.6", "8.14.5"])
+void "zip and unzip source"(String gradleVersion) {
+assumeGradleRunsOnCurrentJdk(gradleVersion)
 def libBuildFile = """\
 plugins {
     id 'de.protos.source-publish'
@@ -190,14 +219,17 @@ GradleProjectBuilder.build("etriceSourceZipUnzipTest") {
 	write("lib/build.gradle", libBuildFile)
 	write("lib/src/test.c", sourceFile)
 	write("app/build.gradle", appBuildFile)
-	gradle("unzipSource") {
+	gradle("unzipSource", gradleVersion) {
 		assert task(":app:unzipSource")?.outcome == TaskOutcome.SUCCESS
 		assert exists("app/build/sourcelib/test.c")
 	}
 }}
 
-@Test
-void "convert etunit files"() {
+@ParameterizedTest
+@NullSource
+@ValueSource(strings = ["7.6.6", "8.14.5"])
+void "convert etunit files"(String gradleVersion) {
+assumeGradleRunsOnCurrentJdk(gradleVersion)
 def buildFile = """\
 plugins {
 	id 'de.protos.etunit-convert'
@@ -215,23 +247,26 @@ tc start 11: openAll and closeAll
 tc end 11: 0"""
 GradleProjectBuilder.build("etunitConvertTest") {
 	write("build.gradle", buildFile)
-	gradle("convertTestResults") {
+	gradle("convertTestResults", gradleVersion) {
 		assert task(":convertTestResults")?.outcome == TaskOutcome.NO_SOURCE
 	}
 	write("log/test1.etu", etuFile)
-	gradle("convertTestResults") {
+	gradle("convertTestResults", gradleVersion) {
 		assert task(":convertTestResults")?.outcome == TaskOutcome.SUCCESS
 		assert exists("log/test1.xml")
 	}
 	write("log/test2.etu", etuFile)
-	gradle("convertTestResults") {
+	gradle("convertTestResults", gradleVersion) {
 		assert task(":convertTestResults")?.outcome == TaskOutcome.SUCCESS
 		assert exists("log/test2.xml")
 	}
 }}
 
-@Test
-void "snapshot minimal C generation"() {
+@ParameterizedTest
+@NullSource
+@ValueSource(strings = ["7.6.6", "8.14.5"])
+void "snapshot minimal C generation"(String gradleVersion) {
+assumeGradleRunsOnCurrentJdk(gradleVersion)
 def buildFile = """\
 plugins {
 	id 'de.protos.etrice-c'
@@ -255,7 +290,7 @@ RoomModel test {
 GradleProjectBuilder.build("etriceCSnapshotTest") {
 	write("build.gradle", buildFile)
 	write("model/test.room", roomFile)
-	gradle("build") {
+	gradle("build", gradleVersion) {
 		assert task(":generateRoom")?.outcome == TaskOutcome.SUCCESS
 	}
 	// Basic snapshot assertions: check deterministic key tokens in generated file
@@ -266,8 +301,11 @@ GradleProjectBuilder.build("etriceCSnapshotTest") {
 }
 }
 
-@Test
-void "model zip is not run on regular assemble (regression guard for #4)"() {
+@ParameterizedTest
+@NullSource
+@ValueSource(strings = ["7.6.6", "8.14.5"])
+void "model zip is not run on regular assemble (regression guard for #4)"(String gradleVersion) {
+assumeGradleRunsOnCurrentJdk(gradleVersion)
 def buildFile = """\
 plugins {
 	id 'de.protos.etrice-base'
@@ -276,13 +314,16 @@ plugins {
 
 GradleProjectBuilder.build("etriceArchivesModelGuardTest") {
 	write("build.gradle", buildFile)
-	gradle("assemble") {
+	gradle("assemble", gradleVersion) {
 		assert task(":zipModel") == null : "modelZip must not run on regular assemble"
 	}
 }}
 
-@Test
-void "source zip is not run on regular assemble (regression guard for #4)"() {
+@ParameterizedTest
+@NullSource
+@ValueSource(strings = ["7.6.6", "8.14.5"])
+void "source zip is not run on regular assemble (regression guard for #4)"(String gradleVersion) {
+assumeGradleRunsOnCurrentJdk(gradleVersion)
 // Ensure that the source-publish plugin also does not attach to archives
 // even when a source zip task is present
 
@@ -297,72 +338,8 @@ zipSource.from 'src'
 GradleProjectBuilder.build("etriceArchivesSourceGuardTest") {
 	write("build.gradle", buildFile)
 	write("src/dummy.c", "int x() { return 1; }")
-	gradle("assemble") {
+	gradle("assemble", gradleVersion) {
 		assert task(":zipSource") == null : "zipSource task must not run on regular assemble"
-	}
-}}
-
-@Test
-void "plugin is compatible with gradle 7"() {
-assumeLegacyGradleCompatibleJdk()
-def buildFile = """\
-plugins {
-	id 'de.protos.etrice-base'
-}
-modelSet {
-	test
-}"""
-GradleProjectBuilder.build("etriceGradle76CompatTest") {
-	write("build.gradle", buildFile)
-	gradle("generate", "7.6.6") {
-		assert task(":generateTest")?.outcome == TaskOutcome.NO_SOURCE
-	}
-}}
-
-@Test
-void "model zip is not run on regular assemble with gradle 7 (regression guard for #4)"() {
-assumeLegacyGradleCompatibleJdk()
-def buildFile = """\
-plugins {
-	id 'de.protos.etrice-base'
-}
-"""
-GradleProjectBuilder.build("etriceGradle76ArchivesModelGuardTest") {
-	write("build.gradle", buildFile)
-	gradle("assemble", "7.6.6") {
-		assert task(":zipModel") == null : "modelZip must not run on regular assemble"
-	}
-}}
-
-@Test
-void "plugin is compatible with gradle 8"() {
-assumeLegacyGradleCompatibleJdk()
-def buildFile = """\
-plugins {
-	id 'de.protos.etrice-base'
-}
-modelSet {
-	test
-}"""
-GradleProjectBuilder.build("etriceGradle8CompatTest") {
-	write("build.gradle", buildFile)
-	gradle("generate", "8.14.5") {
-		assert task(":generateTest")?.outcome == TaskOutcome.NO_SOURCE
-	}
-}}
-
-@Test
-void "model zip is not run on regular assemble with gradle 8 (regression guard for #4)"() {
-assumeLegacyGradleCompatibleJdk()
-def buildFile = """\
-plugins {
-	id 'de.protos.etrice-base'
-}
-"""
-GradleProjectBuilder.build("etriceGradle8ArchivesModelGuardTest") {
-	write("build.gradle", buildFile)
-	gradle("assemble", "8.14.5") {
-		assert task(":zipModel") == null : "modelZip must not run on regular assemble"
 	}
 }}
 

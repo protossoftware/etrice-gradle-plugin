@@ -92,9 +92,10 @@ Run the code generation with `./gradlew generateRoom` (or a full `./gradlew buil
   Java 17 – 26 with Gradle 9).
   Generators are executed in worker processes; older eTrice versions (Xtext 2.25 based)
   are made to run on Java 17+ automatically via `--add-opens`.
-* **Building this repository:** JDK 17 – 26 (the CI uses Temurin 25 and additionally runs a
-  compatibility build on JDK 17 for the minimum supported Gradle version).
-  See [UPGRADE_PLAN.md](UPGRADE_PLAN.md) for the current toolchain state.
+* **Building this repository:** JDK 17 (the CI uses Temurin 17). Each functional test runs
+  against the current Gradle version and against the minimum supported versions 7.6 and
+  8.14; those test legs cannot run on newer JDKs (Gradle 7 needs at most Java 19, Gradle 8
+  at most Java 24) and are skipped there. See [UPGRADE_PLAN.md](UPGRADE_PLAN.md).
 * eTrice generator artifacts are resolved from the
   [eTrice repositories at Eclipse](https://repo.eclipse.org/content/repositories/etrice/).
 

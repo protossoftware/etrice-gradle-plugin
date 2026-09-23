@@ -43,6 +43,6 @@ subprojects {
 	javadoc {
 		options.showFromPublic()  // show only public classes and members
 		options.addBooleanOption 'Xdoclint:-missing', true  // silence warnings because of missing javadoc comments
-		options.links "https://docs.oracle.com/en/java/javase/25/docs/api/", "https://docs.gradle.org/${gradle.gradleVersion}/javadoc/"
+		options.links "https://docs.oracle.com/en/java/javase/17/docs/api/", "https://docs.gradle.org/${gradle.gradleVersion}/javadoc/"
 	}
 }

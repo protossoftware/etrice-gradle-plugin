@@ -12,15 +12,16 @@ plugin markers (`de.protos.etrice-base`, `de.protos.etrice-c`, `de.protos.etrice
 
 ## Environment constraints
 
-- The build uses **Gradle 9.7.1** (see `gradle/wrapper/gradle-wrapper.properties`) and runs
-  on **JDK 17–26** (the CI uses Temurin 25).
+- The build uses **Gradle 9.7.1** (see `gradle/wrapper/gradle-wrapper.properties`) and is
+  standardized on **JDK 17** (the CI uses Temurin 17).
 - The plugins themselves compile with `options.release = 8` (minimum JVM of supported Gradle
   versions; javac emits obsolete-option warnings for release 8 on recent JDKs, suppressed via
   `-Xlint:-options`). They must stay free of APIs newer than Gradle 7.6 — the *minimum*
   supported consumer version — except where guarded at runtime (see `GradleCompat`).
-- Compatibility with the minimum supported Gradle (7.6) and Gradle 8.14 is verified by
-  functional tests using TestKit `withGradleVersion`. These tests cannot run on JDK 20+
-  (old Gradle cannot start there), so they self-skip; the CI `compat` job (JDK 17) executes them.
+- Every functional test runs three times via TestKit: on the building Gradle version and on
+  the minimum supported versions 7.6.6 and 8.14.5 (`withGradleVersion`). The legacy legs
+  cannot run on newer JDKs (Gradle 7 needs at most Java 19, Gradle 8 at most Java 24) and
+  self-skip there — one more reason the build is standardized on JDK 17.
 
 ## Common commands
 
@@ -92,7 +93,7 @@ expect the first `test` run to take a few minutes.
 
 ## Planned upgrades
 
-The coordinated upgrade to Gradle 9.7.1 / JDK 25 (phases 0–5) is **complete** — see
+The coordinated upgrade to Gradle 9.7.1 / JDK 17 (phases 0–5) is **complete** — see
 [UPGRADE_PLAN.md](UPGRADE_PLAN.md) for details and remaining watch items
 (e.g. the third-party asciidoctor deprecation to resolve before Gradle 10). Keep that file
 updated as steps are completed.

@@ -101,7 +101,7 @@ public abstract class GenerateTask extends SourceTask {
 	 * @return the modelpath for the generator
 	 */
 	@InputFiles
-	@PathSensitive(PathSensitivity.NONE)
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public ConfigurableFileCollection getModelpath() {
 		return modelpath;
 	}
