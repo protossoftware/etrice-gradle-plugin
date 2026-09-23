@@ -4,7 +4,7 @@ plugins {
 	id "com.gradle.plugin-publish" apply false
 }
 
-def junitJupiter = extensions.getByType(VersionCatalogsExtension).named("libs").findLibrary("junit-jupiter").get()
+def junitJupiter = libs.junit.jupiter
 
 subprojects {
 	apply plugin: "java-library"
