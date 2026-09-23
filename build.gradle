@@ -14,9 +14,11 @@ scmVersion {
 	}
 }
 
+def projectVersion = scmVersion.version
+
 allprojects {
 	group = "de.protos.etrice"
-	version = scmVersion.version
+	version = projectVersion
 	
 	repositories {
 		maven {

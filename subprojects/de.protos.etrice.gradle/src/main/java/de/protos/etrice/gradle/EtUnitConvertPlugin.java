@@ -26,7 +26,7 @@ public class EtUnitConvertPlugin implements Plugin<Project> {
 	public static final String ETUNIT_CONVERTER_CONFIGURATION_NAME = "etunitConverter";
 	public static final String ETUNIT_CONVERTER_CLASSPATH_CONFIGURATION_NAME = "etunitConvertClasspath";
 	
-	private static final String ETUNIT_CONVERTER_DEFAULT_DEPENDENCY = "org.eclipse.etrice:org.eclipse.etrice.etunit.converter:5.4.0";
+	private static final String ETUNIT_CONVERTER_DEFAULT_DEPENDENCY = "org.eclipse.etrice:org.eclipse.etrice.etunit.converter:5.9.0";
 	
 	@Override
 	public void apply(Project project) {
@@ -42,14 +42,14 @@ public class EtUnitConvertPlugin implements Plugin<Project> {
 		NamedDomainObjectProvider<Configuration> etunit = configurations.register(ETUNIT_CONVERTER_CONFIGURATION_NAME, c -> {
 			c.setCanBeConsumed(false);
 			c.setCanBeResolved(false);
-			c.setVisible(false);
+			GradleCompat.setInvisible(c);
 			c.defaultDependencies(ds ->	ds.add(dependencies.create(ETUNIT_CONVERTER_DEFAULT_DEPENDENCY)));
 		});
 		
 		NamedDomainObjectProvider<Configuration> etunitClasspath = configurations.register(ETUNIT_CONVERTER_CLASSPATH_CONFIGURATION_NAME, c -> {
 			c.setCanBeConsumed(false);
 			c.setCanBeResolved(true);
-			c.setVisible(false);
+			GradleCompat.setInvisible(c);
 			c.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.class, Usage.JAVA_RUNTIME));
 			c.getAttributes().attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.class, Category.LIBRARY));
 			c.getAttributes().attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.class, LibraryElements.JAR));

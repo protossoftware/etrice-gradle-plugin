@@ -2,6 +2,8 @@ plugins {
 	id "com.gradle.plugin-publish" apply false
 }
 
+def junitJupiter = libs.junit.jupiter
+
 subprojects {
 	apply plugin: "java-library"
 	apply plugin: "groovy"
@@ -15,7 +17,7 @@ subprojects {
 	}
 
 	dependencies {
-		testImplementation libs.junit.jupiter
+		testImplementation junitJupiter
 		testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 	}
 

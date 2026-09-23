@@ -1,11 +1,22 @@
 package de.protos.etrice.gradle
 
+import org.gradle.api.JavaVersion
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.Parameter
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.NullSource
+import org.junit.jupiter.params.provider.ValueSource
 import org.gradle.testkit.runner.TaskOutcome
 
+@ParameterizedClass
+@NullSource // gradleVersion = null uses current Gradle version running this test
+@ValueSource(strings = ["7.6.6", "8.14.5"])
 public class FunctionalTests {
 
-def etriceVersion = "5.4.0"
+@Parameter
+def gradleVersion
+
+def etriceVersion = "5.9.0"
 def repositories = """\
 repositories {
 	maven {
@@ -27,7 +38,7 @@ modelSet {
 }"""
 GradleProjectBuilder.build("etriceEmptyProjectTest") {
 	write("build.gradle", buildFile)
-	gradle("generate") {
+	gradle("generate", gradleVersion) {
 		assert task(":generateTest")?.outcome == TaskOutcome.NO_SOURCE
 	}
 }}
@@ -59,7 +70,7 @@ RoomModel test {
 GradleProjectBuilder.build("etriceCTest") {
 	write("build.gradle", buildFile)
 	write("model/test.room", roomFile)
-	gradle("build") {
+	gradle("build", gradleVersion) {
 		assert task(":generateRoom")?.outcome == TaskOutcome.SUCCESS
 		assert exists("build/src-gen/room/test/ATest.c")
 	}
@@ -92,7 +103,7 @@ RoomModel test {
 GradleProjectBuilder.build("etriceJavaTest") {
 	write("build.gradle", buildFile)
 	write("model/test.room", roomFile)
-	gradle("build") {
+	gradle("build", gradleVersion) {
 		assert task(":generateRoom")?.outcome == TaskOutcome.SUCCESS
 		assert task(":compileJava")?.outcome == TaskOutcome.SUCCESS
 		assert exists("build/src-gen/room/test/ATest.java")
@@ -147,7 +158,7 @@ GradleProjectBuilder.build("etriceMultiProjectTest") {
 	write("lib/model/lib.room", libRoomFile)
 	write("app/build.gradle", appBuildFile)
 	write("app/model/app.room", appRoomFile)
-	gradle("build") {
+	gradle("build", gradleVersion) {
 		assert task(":lib:generateRoom")?.outcome == TaskOutcome.SUCCESS
 		assert task(":app:generateRoom")?.outcome == TaskOutcome.SUCCESS
 		assert exists("lib/build/src-gen/room/lib/ALib.c")
@@ -180,7 +191,7 @@ GradleProjectBuilder.build("etriceSourceZipUnzipTest") {
 	write("lib/build.gradle", libBuildFile)
 	write("lib/src/test.c", sourceFile)
 	write("app/build.gradle", appBuildFile)
-	gradle("unzipSource") {
+	gradle("unzipSource", gradleVersion) {
 		assert task(":app:unzipSource")?.outcome == TaskOutcome.SUCCESS
 		assert exists("app/build/sourcelib/test.c")
 	}
@@ -205,16 +216,16 @@ tc start 11: openAll and closeAll
 tc end 11: 0"""
 GradleProjectBuilder.build("etunitConvertTest") {
 	write("build.gradle", buildFile)
-	gradle("convertTestResults") {
+	gradle("convertTestResults", gradleVersion) {
 		assert task(":convertTestResults")?.outcome == TaskOutcome.NO_SOURCE
 	}
 	write("log/test1.etu", etuFile)
-	gradle("convertTestResults") {
+	gradle("convertTestResults", gradleVersion) {
 		assert task(":convertTestResults")?.outcome == TaskOutcome.SUCCESS
 		assert exists("log/test1.xml")
 	}
 	write("log/test2.etu", etuFile)
-	gradle("convertTestResults") {
+	gradle("convertTestResults", gradleVersion) {
 		assert task(":convertTestResults")?.outcome == TaskOutcome.SUCCESS
 		assert exists("log/test2.xml")
 	}
@@ -245,7 +256,7 @@ RoomModel test {
 GradleProjectBuilder.build("etriceCSnapshotTest") {
 	write("build.gradle", buildFile)
 	write("model/test.room", roomFile)
-	gradle("build") {
+	gradle("build", gradleVersion) {
 		assert task(":generateRoom")?.outcome == TaskOutcome.SUCCESS
 	}
 	// Basic snapshot assertions: check deterministic key tokens in generated file
@@ -266,7 +277,7 @@ plugins {
 
 GradleProjectBuilder.build("etriceArchivesModelGuardTest") {
 	write("build.gradle", buildFile)
-	gradle("assemble") {
+	gradle("assemble", gradleVersion) {
 		assert task(":zipModel") == null : "modelZip must not run on regular assemble"
 	}
 }}
@@ -287,7 +298,7 @@ zipSource.from 'src'
 GradleProjectBuilder.build("etriceArchivesSourceGuardTest") {
 	write("build.gradle", buildFile)
 	write("src/dummy.c", "int x() { return 1; }")
-	gradle("assemble") {
+	gradle("assemble", gradleVersion) {
 		assert task(":zipSource") == null : "zipSource task must not run on regular assemble"
 	}
 }}

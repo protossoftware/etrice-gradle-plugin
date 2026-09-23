@@ -16,10 +16,12 @@ import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 
 /**
  * Generates an eclipse modelpath file.
  */
+@DisableCachingByDefault(because = "Writes a small file that is cheap to produce")
 public class EclipseModelpathTask extends DefaultTask {
 	
 	private final SetProperty<String> srcDirs;
