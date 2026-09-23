@@ -32,12 +32,8 @@ subprojects {
 			// Compile for minimum Java version supported by Gradle
 			// https://docs.gradle.org/current/userguide/compatibility.html
 			options.release = 8
-			// Newer JDKs turn the release 8 option into an obsolete-option warning, -Werror would fail the build
-			options.compilerArgs.addAll '-Xlint:all', '-Xlint:-options', '-Werror'  // treat compiler warnings as errors
 		}
-		else {
-			options.compilerArgs.addAll '-Xlint:all', '-Werror'  // treat compiler warnings as errors
-		}
+		options.compilerArgs.addAll '-Xlint:all', '-Werror'  // treat compiler warnings as errors
 	}
 
 	javadoc {

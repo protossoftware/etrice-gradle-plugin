@@ -1,19 +1,12 @@
 package de.protos.etrice.gradle
 
 import org.gradle.api.JavaVersion
-import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.NullSource
 import org.junit.jupiter.params.provider.ValueSource
 import org.gradle.testkit.runner.TaskOutcome
 
 public class FunctionalTests {
-
-/** Gradle versions below this can only run on JDKs up to the listed maximum */
-private static final Map<String, JavaVersion> MAX_JDK_FOR_GRADLE_MAJOR = [
-	"7": JavaVersion.VERSION_19,
-	"8": JavaVersion.VERSION_24
-]
 
 def etriceVersion = "5.9.0"
 def repositories = """\
@@ -26,25 +19,10 @@ repositories {
 	}
 }"""
 
-/**
- * Skips the test invocation for Gradle versions that cannot run on the current JDK,
- * e.g. Gradle 7 cannot start on JDK 20 or later.
- *
- * @param gradleVersion the Gradle version of the test invocation, or null for the current version
- */
-private static void assumeGradleRunsOnCurrentJdk(String gradleVersion) {
-	if(gradleVersion != null) {
-		def major = gradleVersion.split("\\.")[0]
-		def maxJdk = MAX_JDK_FOR_GRADLE_MAJOR[major]
-		Assumptions.assumeTrue(maxJdk == null || JavaVersion.current() <= maxJdk)
-	}
-}
-
 @ParameterizedTest
 @NullSource
 @ValueSource(strings = ["7.6.6", "8.14.5"])
 void "build empty eTrice project"(String gradleVersion) {
-assumeGradleRunsOnCurrentJdk(gradleVersion)
 def buildFile = """\
 plugins {
 	id 'de.protos.etrice-base'
@@ -63,7 +41,6 @@ GradleProjectBuilder.build("etriceEmptyProjectTest") {
 @NullSource
 @ValueSource(strings = ["7.6.6", "8.14.5"])
 void "generate basic eTrice C project with modellib from model library plugin"(String gradleVersion) {
-assumeGradleRunsOnCurrentJdk(gradleVersion)
 def buildFile = """\
 plugins {
 	id 'de.protos.etrice-c'
@@ -99,7 +76,6 @@ GradleProjectBuilder.build("etriceCTest") {
 @NullSource
 @ValueSource(strings = ["7.6.6", "8.14.5"])
 void "build basic eTrice Java project with modellib from repository"(String gradleVersion) {
-assumeGradleRunsOnCurrentJdk(gradleVersion)
 def buildFile = """\
 plugins {
 	id 'java-library'
@@ -136,7 +112,6 @@ GradleProjectBuilder.build("etriceJavaTest") {
 @NullSource
 @ValueSource(strings = ["7.6.6", "8.14.5"])
 void "generate multi project eTrice C project"(String gradleVersion) {
-assumeGradleRunsOnCurrentJdk(gradleVersion)
 def rootBuildFile = """\
 plugins {
 	id 'de.protos.etrice-c' apply false
@@ -195,7 +170,6 @@ GradleProjectBuilder.build("etriceMultiProjectTest") {
 @NullSource
 @ValueSource(strings = ["7.6.6", "8.14.5"])
 void "zip and unzip source"(String gradleVersion) {
-assumeGradleRunsOnCurrentJdk(gradleVersion)
 def libBuildFile = """\
 plugins {
     id 'de.protos.source-publish'
@@ -229,7 +203,6 @@ GradleProjectBuilder.build("etriceSourceZipUnzipTest") {
 @NullSource
 @ValueSource(strings = ["7.6.6", "8.14.5"])
 void "convert etunit files"(String gradleVersion) {
-assumeGradleRunsOnCurrentJdk(gradleVersion)
 def buildFile = """\
 plugins {
 	id 'de.protos.etunit-convert'
@@ -266,7 +239,6 @@ GradleProjectBuilder.build("etunitConvertTest") {
 @NullSource
 @ValueSource(strings = ["7.6.6", "8.14.5"])
 void "snapshot minimal C generation"(String gradleVersion) {
-assumeGradleRunsOnCurrentJdk(gradleVersion)
 def buildFile = """\
 plugins {
 	id 'de.protos.etrice-c'
@@ -305,7 +277,6 @@ GradleProjectBuilder.build("etriceCSnapshotTest") {
 @NullSource
 @ValueSource(strings = ["7.6.6", "8.14.5"])
 void "model zip is not run on regular assemble (regression guard for #4)"(String gradleVersion) {
-assumeGradleRunsOnCurrentJdk(gradleVersion)
 def buildFile = """\
 plugins {
 	id 'de.protos.etrice-base'
@@ -323,7 +294,6 @@ GradleProjectBuilder.build("etriceArchivesModelGuardTest") {
 @NullSource
 @ValueSource(strings = ["7.6.6", "8.14.5"])
 void "source zip is not run on regular assemble (regression guard for #4)"(String gradleVersion) {
-assumeGradleRunsOnCurrentJdk(gradleVersion)
 // Ensure that the source-publish plugin also does not attach to archives
 // even when a source zip task is present
 
