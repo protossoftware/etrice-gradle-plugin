@@ -10,7 +10,7 @@ import org.gradle.testkit.runner.TaskOutcome
 
 @ParameterizedClass
 @NullSource // gradleVersion = null uses current Gradle version running this test
-@ValueSource(strings = ["7.6.6", "8.14.3"])
+@ValueSource(strings = ["7.6.6", "8.14.5"])
 public class FunctionalTests {
 
 @Parameter
