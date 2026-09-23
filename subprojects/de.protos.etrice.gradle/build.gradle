@@ -13,9 +13,9 @@ gradlePlugin {
 			displayName = "eTrice Base Plugin"
 			description = "Gradle plugins for eTrice integration"
 			tags.set(["etrice"])
-			compatibility(it) {
+			compatibility {
 				features {
-					configurationCache = false
+					configurationCache = true
 				}
 			}
 		}
@@ -25,9 +25,9 @@ gradlePlugin {
 			displayName = "eTrice C Plugin"
 			description = "Gradle plugins for eTrice integration"
 			tags.set(["etrice"])
-			compatibility(it) {
+			compatibility {
 				features {
-					configurationCache = false
+					configurationCache = true
 				}
 			}
 		}
@@ -37,9 +37,9 @@ gradlePlugin {
 			displayName = "eTrice Java Plugin"
 			description = "Gradle plugins for eTrice integration"
 			tags.set(["etrice"])
-			compatibility(it) {
+			compatibility {
 				features {
-					configurationCache = false
+					configurationCache = true
 				}
 			}
 		}
@@ -49,9 +49,9 @@ gradlePlugin {
 			displayName = "eTrice Model Library Plugin"
 			description = "Gradle plugins for eTrice integration"
 			tags.set(["etrice"])
-			compatibility(it) {
+			compatibility {
 				features {
-					configurationCache = false
+					configurationCache = true
 				}
 			}
 		}
@@ -61,9 +61,9 @@ gradlePlugin {
 			displayName = "eTrice Source Library Plugin"
 			description = "Gradle plugins for eTrice integration"
 			tags.set(["etrice"])
-			compatibility(it) {
+			compatibility {
 				features {
-					configurationCache = false
+					configurationCache = true
 				}
 			}
 		}
@@ -73,9 +73,9 @@ gradlePlugin {
 			displayName = "eTrice Source Publish Plugin"
 			description = "Gradle plugins for eTrice integration"
 			tags.set(["etrice"])
-			compatibility(it) {
+			compatibility {
 				features {
-					configurationCache = false
+					configurationCache = true
 				}
 			}
 		}
@@ -85,9 +85,9 @@ gradlePlugin {
 			displayName = "etUnit Convert Plugin"
 			description = "Gradle plugins for eTrice integration"
 			tags.set(["etrice"])
-			compatibility(it) {
+			compatibility {
 				features {
-					configurationCache = false
+					configurationCache = true
 				}
 			}
 		}
