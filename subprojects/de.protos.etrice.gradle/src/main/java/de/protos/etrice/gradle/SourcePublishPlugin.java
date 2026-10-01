@@ -43,7 +43,8 @@ public class SourcePublishPlugin implements Plugin<Project> {
 		NamedDomainObjectProvider<Configuration> sourceZip = configurations.register(SOURCE_ZIP_CONFIGURATION_NAME, c -> {
 			c.setCanBeConsumed(true);
 			c.setCanBeResolved(false);
-			c.setVisible(false);
+			// workaround to prevent auto attachment of source zipping task to archives configuration, see https://github.com/protossoftware/etrice-gradle-plugin/issues/4
+			GradleCompat.setInvisible(c);
 			c.getAttributes().attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.class, SourceLibraryPlugin.LIBRARY_ELEMENTS_SOURCE_ZIP));
 			c.getOutgoing().artifact(zipSource);
 		});

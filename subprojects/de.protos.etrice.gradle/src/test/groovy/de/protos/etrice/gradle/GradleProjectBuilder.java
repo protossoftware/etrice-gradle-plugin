@@ -90,22 +90,37 @@ public class GradleProjectBuilder {
 	}
 	
 	/**
-	 * Executes a Gradle build.
-	 * 
+	 * Executes a Gradle build with the Gradle version of this build.
+	 *
 	 * @param task the name of the task to execute
 	 * @param closure a closure to evaluate the build result
 	 * @return the result of the build execution
 	 */
 	public BuildResult gradle(String task, @DelegatesTo(value = BuildResult.class, strategy = Closure.DELEGATE_FIRST) Closure<?> closure) {
+		return gradle(task, null, closure);
+	}
+
+	/**
+	 * Executes a Gradle build with the specified Gradle version.
+	 *
+	 * @param task the name of the task to execute
+	 * @param gradleVersion the Gradle version to run the build with, or null for the current version
+	 * @param closure a closure to evaluate the build result
+	 * @return the result of the build execution
+	 */
+	public BuildResult gradle(String task, String gradleVersion, @DelegatesTo(value = BuildResult.class, strategy = Closure.DELEGATE_FIRST) Closure<?> closure) {
 		var args = new ArrayList<String>();
 		args.add(task);
 		args.add("--warning-mode=fail");  // fail on deprecation warnings
-		BuildResult result = GradleRunner.create()
+		GradleRunner runner = GradleRunner.create()
 			.withPluginClasspath()
 			.withProjectDir(projectDir.toFile())
 			.withArguments(args)
-			.forwardOutput()
-			.build();
+			.forwardOutput();
+		if(gradleVersion != null) {
+			runner = runner.withGradleVersion(gradleVersion);
+		}
+		BuildResult result = runner.build();
 		closure.setDelegate(result);
 		closure.setResolveStrategy(Closure.DELEGATE_FIRST);
 		closure.call();

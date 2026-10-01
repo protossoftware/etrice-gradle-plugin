@@ -10,16 +10,19 @@ import javax.inject.Inject;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
+import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFiles;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
+import org.gradle.work.DisableCachingByDefault;
 
 /**
  * Converts etunit reports to xml test reports.
  */
+@DisableCachingByDefault(because = "Conversion runs an external process with unvalidated caching semantics")
 public abstract class EtUnitConvertTask extends SourceTask {
 	
 	private static final String ETUNIT_CONVERTER_MAIN = "org.eclipse.etrice.etunit.converter.EtUnitReportConverter";
@@ -41,6 +44,7 @@ public abstract class EtUnitConvertTask extends SourceTask {
 	 * @return the classpath that contains the etunit converter
 	 */
 	@InputFiles
+	@Classpath
 	public ConfigurableFileCollection getClasspath() {
 		return classpath;
 	}
